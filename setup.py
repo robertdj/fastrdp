@@ -6,7 +6,7 @@ module = Extension(
     "RDP", 
     sources=["src/PyRDP/wrapper.cpp"],
     include_dirs=[get_include()],
-    define_macros=[('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION')]
+    define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
 )
 
 setup(
@@ -15,7 +15,8 @@ setup(
     author="Robert Dahl Jacobsen",
     description="Implementation of the Ramer-Douglas-Peucker algorithm",
     license="MIT",
-    packages=find_packages('src'),
-    package_dir={'': 'src'},
+    packages=find_packages("src"),
+    package_dir={"": "src"},
     ext_modules=[module],
+    install_requires=['numpy']
 )
