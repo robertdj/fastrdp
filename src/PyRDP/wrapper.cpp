@@ -61,8 +61,12 @@ static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
     return Py_BuildValue("OO", result1_obj, result2_obj);
 }
 
+// Documentation string
+PyDoc_STRVAR(rdp_doc, "rdp(arr1, arr2, epsilon)\n\n\
+Compute approximation using the Ramer-Douglas-Peucker algorithm");
+
 static PyMethodDef module_methods[] = {
-    {"rdp", rdp_wrapper, METH_VARARGS, "Compute approximation using the Ramer-Douglas-Peucker algorithm"},
+    {"rdp", rdp_wrapper, METH_VARARGS, rdp_doc},
     {NULL, NULL, 0, NULL}
 };
 
