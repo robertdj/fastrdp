@@ -1,9 +1,8 @@
-#include <iostream>
 #include <Python.h>
 #include <numpy/arrayobject.h>
 #include "RamerDouglasPeucker.h"
 
-static PyObject* myfun_wrapper(PyObject* self, PyObject* args) {
+static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
     PyObject* arr1_obj;
     PyObject* arr2_obj;
     double param;
@@ -40,10 +39,7 @@ static PyObject* myfun_wrapper(PyObject* self, PyObject* args) {
     // Create new NumPy arrays to return
     std::size_t nIndices = indicesToKeep.size();
 
-    // npy_intp dims[1] = {nIndices};
     npy_intp dims[1] = {static_cast<npy_intp>(nIndices)};
-    // npy_intp dims[1];
-    // dims[0] = nIndices;
 
     PyObject* result1_obj = PyArray_FROM_OTF(PyArray_SimpleNew(1, dims, NPY_DOUBLE), NPY_DOUBLE, NPY_ARRAY_FORCECAST);
     PyObject* result2_obj = PyArray_FROM_OTF(PyArray_SimpleNew(1, dims, NPY_DOUBLE), NPY_DOUBLE, NPY_ARRAY_FORCECAST);
@@ -66,7 +62,7 @@ static PyObject* myfun_wrapper(PyObject* self, PyObject* args) {
 }
 
 static PyMethodDef module_methods[] = {
-    {"myfun", myfun_wrapper, METH_VARARGS, "Calculate the sum of elements in a NumPy array."},
+    {"rdp", rdp_wrapper, METH_VARARGS, "Compute approximation using the Ramer-Douglas-Peucker algorithm"},
     {NULL, NULL, 0, NULL}
 };
 
@@ -83,4 +79,3 @@ PyMODINIT_FUNC PyInit_RDP(void) {
     import_array(); 
     return PyModule_Create(&module_def);
 }
-
