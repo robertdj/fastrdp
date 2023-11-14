@@ -19,5 +19,6 @@ setup(
     packages=find_packages("src"),
     package_dir={"": "src"},
     ext_modules=[module],
-    install_requires=['numpy']
+    install_requires=['numpy'],
+    tests_require=['pytest', "pytest-cov"],
 )
