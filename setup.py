@@ -4,8 +4,9 @@ from numpy import get_include
 
 module = Extension(
     "RDP", 
-    sources=["src/PyRDP/wrapper.cpp"],
+    sources=["src/PyRDP/wrapper.cpp", "src/PyRDP/RamerDouglasPeucker.cpp"],
     include_dirs=[get_include()],
+    extra_compile_args=["-std=c++17"],
     define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
 )
 
