@@ -1,16 +1,20 @@
-# PyRDP
+---
+title: "PyRDP"
+format: 
+  gfm:
+    code-fold: false
+---
 
-The RDP package contains an implementation of the [Ramer–Douglas–Peucker
-algorithm](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm)
-for reducing the number of points in a curve.
+The RDP package contains an implementation of the [Ramer–Douglas–Peucker algorithm](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm) for reducing the number of points in a curve.
+
 
 # Example
 
-There is a single function in the RDP package. Here is an example from
-the Wikipedia page linked to above with a description of the algorithm.
+There is a single function in the RDP package.
+Here is an example from the Wikipedia page linked to above with a description of the algorithm.
 The original line is black and the approximating line is red.
 
-``` python
+```{python example}
 import matplotlib.pyplot as plt
 import numpy as np
 from RDP import rdp
@@ -25,12 +29,11 @@ ax.plot(x_new, y_new, linestyle='dashed', color='red')
 plt.show()
 ```
 
-![](README_files/figure-commonmark/cell-2-output-1.png)
 
 # Compilation
 
 Run the following command to install the package from source
 
-``` bash
+```bash
 python setup.py install
 ```
