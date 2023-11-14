@@ -28,7 +28,10 @@ jobs:
           source .venv/bin/activate
 
       - name: Install RDP & dependencies
-        run: python setup.py install
+        run: |
+          pip install -r requirements.txt
+          pip install pytest
+          python setup.py install
 
       - name: Run tests
         run: pytest
