@@ -63,3 +63,11 @@ class TestErrorHandling:
     def test_error_when_input_vectors_have_different_lengths(self):
         with pytest.raises(ValueError, match="Inputs have different lengths"):
             rdp(self.x[0:2], self.y, 1)
+
+    def test_first_input_must_be_floats(self):
+        with pytest.raises(TypeError, match="Input must be a Numpy array of type float"):
+            rdp(self.x, self.y.astype(float), 1)
+
+    def test_second_input_must_be_floats(self):
+        with pytest.raises(TypeError, match="Input must be a Numpy array of type float"):
+            rdp(self.x.astype(float), self.y, 1)
