@@ -72,13 +72,13 @@ static PyMethodDef module_methods[] = {
 
 static struct PyModuleDef module_def = {
     PyModuleDef_HEAD_INIT,
-    "RDP",
+    "fastrdp",
     NULL,
     -1,
     module_methods
 };
 
-PyMODINIT_FUNC PyInit_RDP(void) {
+PyMODINIT_FUNC PyInit_fastrdp(void) {
     // Initialize NumPy
     import_array(); 
     return PyModule_Create(&module_def);
