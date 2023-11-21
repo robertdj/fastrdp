@@ -2,6 +2,22 @@
 #include <numpy/arrayobject.h>
 #include "RamerDouglasPeucker.h"
 
+
+int check_numpy_array(PyObject* obj) {
+    if (!PyArray_Check(obj)) {
+        PyErr_SetString(PyExc_TypeError, "Input must be aNumpy array");
+        return 0;
+    }
+
+    if (PyArray_TYPE((PyArrayObject *)obj) != NPY_FLOAT64) {
+        PyErr_SetString(PyExc_TypeError, "Input must be a Numpy array of type float");
+        return 0;
+    }
+
+    return 1;
+}
+
+
 static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
     PyObject* arr1_obj;
     PyObject* arr2_obj;
@@ -15,6 +31,7 @@ static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
         PyErr_SetString(PyExc_ValueError, "epsilon must be non-negative");
         return NULL;
     }
+
     PyArrayObject* arr1 = reinterpret_cast<PyArrayObject*>(arr1_obj);
     PyArrayObject* arr2 = reinterpret_cast<PyArrayObject*>(arr2_obj);
 
@@ -23,6 +40,14 @@ static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
 
     if (len1 != len2) {
         PyErr_SetString(PyExc_ValueError, "Inputs have different lengths");
+        return NULL;
+    }
+
+    if (!check_numpy_array(arr1_obj)) {
+        return NULL;
+    }
+
+    if (!check_numpy_array(arr2_obj)) {
         return NULL;
     }
 
