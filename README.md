@@ -1,13 +1,13 @@
 # fastrdp
 
-The fastrdp package contains an implementation of the
+The *fastrdp* package contains an implementation of the
 [Ramer–Douglas–Peucker
 algorithm](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm)
 for reducing the number of points in a curve.
 
 # Example
 
-There is a single function in the fastrdp package. Here is an example
+There is a single function in the *fastrdp* package. Here is an example
 from the Wikipedia page linked to above with a description of the
 algorithm. The original line is black and the approximating line is red.
 
@@ -30,11 +30,11 @@ plt.show()
 
 # Compilation
 
-To specify package metadata fastrdp is using the contemporary
-`pyproject.toml`. However, to control the compilation of the C++ code a
+To specify package metadata *fastrdp* is using the contemporary
+`pyproject.toml`. However, to control compilation of the C++ code a
 legacy `setup.py` is used.
 
-Execute the following commands to build and install fastrdp
+Execute the following commands to build and install *fastrdp*
 
 ``` bash
 python setup.py build
