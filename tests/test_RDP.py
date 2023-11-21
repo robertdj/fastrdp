@@ -1,6 +1,6 @@
 import numpy as np
 from numpy.testing import assert_array_equal
-from RDP import rdp
+from fastrdp import rdp
 
 class TestRDPVaryingEpsilon:
     x = np.array([0.0, 1, 3, 5])
