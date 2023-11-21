@@ -11,8 +11,20 @@ static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
         return NULL;
     }
 
+    if (param < 0.0) {
+        PyErr_SetString(PyExc_ValueError, "epsilon must be non-negative");
+        return NULL;
+    }
     PyArrayObject* arr1 = reinterpret_cast<PyArrayObject*>(arr1_obj);
     PyArrayObject* arr2 = reinterpret_cast<PyArrayObject*>(arr2_obj);
+
+    npy_intp len1 = PyArray_SIZE(arr1);
+    npy_intp len2 = PyArray_SIZE(arr2);
+
+    if (len1 != len2) {
+        PyErr_SetString(PyExc_ValueError, "Inputs have different lengths");
+        return NULL;
+    }
 
     if (!PyArray_ISCARRAY(arr1) || !PyArray_ISCARRAY(arr2)) {
         PyErr_SetString(PyExc_TypeError, "Input arrays must be contiguous C-style");
