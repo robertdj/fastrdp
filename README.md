@@ -1,19 +1,20 @@
-# PyRDP
+# fastrdp
 
-The RDP package contains an implementation of the [Ramer–Douglas–Peucker
+The fastrdp package contains an implementation of the
+[Ramer–Douglas–Peucker
 algorithm](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm)
 for reducing the number of points in a curve.
 
 # Example
 
-There is a single function in the RDP package. Here is an example from
-the Wikipedia page linked to above with a description of the algorithm.
-The original line is black and the approximating line is red.
+There is a single function in the fastrdp package. Here is an example
+from the Wikipedia page linked to above with a description of the
+algorithm. The original line is black and the approximating line is red.
 
 ``` python
 import matplotlib.pyplot as plt
 import numpy as np
-from RDP import rdp
+from fastrdp import rdp
 
 x = np.arange(0, 5, 0.01)
 y = np.exp(-x) * np.cos(2 * np.pi * x)
@@ -29,8 +30,35 @@ plt.show()
 
 # Compilation
 
-Run the following command to install the package from source
+To specify package metadata fastrdp is using the contemporary
+`pyproject.toml`. However, to control the compilation of the C++ code a
+legacy `setup.py` is used.
+
+Execute the following commands to build and install fastrdp
 
 ``` bash
-python setup.py install
+python setup.py build
+pip install .
 ```
+
+If you want an editable installation, then add a `-e` to the last
+command. To also install the optional dependencies used for development
+add a little extra:
+
+``` bash
+pip install -e '.[dev]'
+```
+
+The single quotes are needed in zsh, but is perhaps superfluous in other
+shells.
+
+# Acknowledgements
+
+Setting up the package build using `pyproject.toml` was not easy, but
+these two blog posts helped tremendeously:
+
+- <https://opensource.com/article/22/11/extend-c-python>
+- <https://opensource.com/article/23/1/packaging-python-modules-wheels>
+
+In `setup.py` there is a [bootstrap dependency on
+numpy](https://stackoverflow.com/questions/76678675/modulenotfounderror-no-module-named-numpy-problem-installing-it).
