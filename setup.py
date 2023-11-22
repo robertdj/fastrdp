@@ -21,5 +21,5 @@ setup(
     packages=find_packages("src"),
     package_dir={"": "src"},
     ext_modules=[module],
-    setup_requires=['numpy']
+    setup_requires=["numpy"]
 )
