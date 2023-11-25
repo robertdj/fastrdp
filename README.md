@@ -14,11 +14,11 @@ algorithm. The original line is black and the approximating line is red.
 ``` python
 import matplotlib.pyplot as plt
 import numpy as np
-from fastrdp import rdp
+import fastrdp
 
-x = np.arange(0, 5, 0.01)
+x = np.linspace(0, 5, 10_000)
 y = np.exp(-x) * np.cos(2 * np.pi * x)
-x_new, y_new = rdp(x, y, 0.06)
+x_new, y_new = fastrdp.rdp(x, y, 0.06)
 
 fig, ax = plt.subplots()
 ax.plot(x, y, color='black', linewidth=2.0)
@@ -27,6 +27,30 @@ plt.show()
 ```
 
 ![](README_files/figure-commonmark/cell-2-output-1.png)
+
+# Performance
+
+Here we compare the performance of *fastrdp* with that of a pure Python
+implementation. The example above is executed with *fastrdp* in less
+than a millisecond on my machine
+
+``` python
+from timeit import timeit
+timeit(lambda: fastrdp.rdp(x, y, 0.1), number=10_000)
+```
+
+    0.9878715319791809
+
+The implementation in the [*rdp* package](https://pypi.org/project/rdp)
+takes more than a second to finish the same computation
+
+``` python
+import rdp
+z = np.column_stack((x, y))
+timeit(lambda: rdp.rdp(z, epsilon=0.1), number=1)
+```
+
+    1.6936232760199346
 
 # Compilation
 
