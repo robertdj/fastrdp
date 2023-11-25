@@ -5,7 +5,7 @@
 
 int check_numpy_array(PyObject* obj) {
     if (!PyArray_Check(obj)) {
-        PyErr_SetString(PyExc_TypeError, "Input must be aNumpy array");
+        PyErr_SetString(PyExc_TypeError, "Input must be a Numpy array");
         return 0;
     }
 
@@ -41,6 +41,10 @@ static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
     if (len1 != len2) {
         PyErr_SetString(PyExc_ValueError, "Inputs have different lengths");
         return NULL;
+    }
+
+    if (len1 <= 2) {
+        return Py_BuildValue("OO", arr1_obj, arr2_obj);
     }
 
     if (!check_numpy_array(arr1_obj)) {
