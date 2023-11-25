@@ -20,7 +20,7 @@ requires-python = ">=3.9"
 
 [project.optional-dependencies]
 dev = ["build", "pytest", "wheel"]
-docs = ["matplotlib", "rdp"]
+docs = ["jupyter", "matplotlib", "rdp"]
 
 [project.urls]
 Homepage = "https://github.com/robertdj/fastrdp"
