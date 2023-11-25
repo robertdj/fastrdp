@@ -4,7 +4,7 @@ from numpy.testing import assert_array_equal
 from fastrdp import rdp
 
 
-class TestRDPVaryingEpsilon:
+class TestVaryingEpsilon:
     x = np.array([0.0, 1, 3, 5])
     y = np.array([2.0, 1, 0, 1])
 
@@ -50,6 +50,26 @@ class TestLineSegments:
         x_new, y_new = rdp(x, y, 0.1)
         assert_array_equal(x_new, np.array([x[0], x[-1]]))
         assert_array_equal(y_new, np.array([y[0], y[-1]]))
+
+
+class TestEdgeCases:
+    def test_input_is_returned_with_single_point(self):
+        x = np.array([0.0])
+        y = np.array([0.0])
+
+        x_new, y_new = rdp(x, y, 1)
+
+        assert_array_equal(x, x_new)
+        assert_array_equal(y, y_new)
+
+    def test_input_is_returned_with_two_ponts(self):
+        x = np.array([0.0, 1])
+        y = np.array([0.0, 1])
+
+        x_new, y_new = rdp(x, y, 1)
+
+        assert_array_equal(x, x_new)
+        assert_array_equal(y, y_new)
 
 
 class TestErrorHandling:
