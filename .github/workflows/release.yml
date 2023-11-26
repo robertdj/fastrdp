@@ -92,7 +92,7 @@ jobs:
           python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: pytest
+          CIBW_TEST_COMMAND: "pytest {project}/tests"
 
       - name: Upload wheel
         uses: actions/upload-artifact@v3
