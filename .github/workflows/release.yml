@@ -42,6 +42,10 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Install dependencies
+        run: |
+          pip install build wheel
+
       - name: Create source distribution
         run: |
           python -m build --sdist
@@ -86,11 +90,9 @@ jobs:
       - name: Build wheel
         run: |
           python -m cibuildwheel --output-dir wheelhouse
-
-      - name: Test wheel
-        run: |
-          pip install --force-reinstall --verbose dist/*.whl
-          python -c 'from fastrdp import rdp'
+        env:
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: pytest
 
       - name: Upload wheel
         uses: actions/upload-artifact@v3
@@ -103,7 +105,7 @@ jobs:
     needs: [create-sdist, build-wheels]
     environment:
       name: TestPyPI
-      url: https://pypi.org/project/fastrdp
+      url: https://test.pypi.org/project/fastrdp
     runs-on: ubuntu-latest
     permissions:
       id-token: write
