@@ -67,12 +67,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [fastrdp]
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        architecture: [x86-64, aarch64]
-        exclude:
+        include:
+          - os: ubuntu-22.04
+            cibw_archs: "x86_64"
+          - os: ubuntu-22.04
+            cibw_archs: "aarch64"
           - os: windows-latest
-            architecture: aarch64
+            cibw_archs: "auto64"
+          - os: macos-latest
+            cibw_archs: "x86_64 arm64"
 
     steps:
       - uses: actions/checkout@v4
@@ -93,8 +96,7 @@ jobs:
         env:
           # Disable build on PyPy; only build on CPython. 
           CIBW_SKIP: pp*
-          # Only build on 64 bit architecture
-          CIBW_ARCHS: auto64
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: "pytest {project}/tests"
 
@@ -103,6 +105,7 @@ jobs:
         with:
           name: wheels
           path: ./wheelhouse/*.whl
+          if-no-files-found: error
 
 
   publish-to-pypi:
