@@ -73,21 +73,21 @@ class TestEdgeCases:
 
 
 class TestErrorHandling:
-    x = np.arange(1, 4)
-    y = np.arange(1, 4)
+    x_int = np.array([1, 2, 3])
+    x_float = np.array([1.0, 2, 3])
 
     def test_error_when_epsilon_is_negative(self):
         with pytest.raises(ValueError, match="epsilon must be non-negative"):
-            rdp(self.x, self.y, -1)
+            rdp(self.x_int, self.x_int, -1)
 
     def test_error_when_input_vectors_have_different_lengths(self):
         with pytest.raises(ValueError, match="Inputs have different lengths"):
-            rdp(self.x[0:2], self.y, 1)
+            rdp(self.x_float[1:2], self.x_float, 1)
 
     def test_first_input_must_be_floats(self):
         with pytest.raises(TypeError, match="Input must be a Numpy array of type float"):
-            rdp(self.x, self.y.astype(float), 1)
+            rdp(self.x_int, self.x_float, 1)
 
     def test_second_input_must_be_floats(self):
         with pytest.raises(TypeError, match="Input must be a Numpy array of type float"):
-            rdp(self.x.astype(float), self.y, 1)
+            rdp(self.x_float, self.x_int, 1)
