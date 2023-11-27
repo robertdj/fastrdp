@@ -32,21 +32,6 @@ static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
         return NULL;
     }
 
-    PyArrayObject* arr1 = reinterpret_cast<PyArrayObject*>(arr1_obj);
-    PyArrayObject* arr2 = reinterpret_cast<PyArrayObject*>(arr2_obj);
-
-    npy_intp len1 = PyArray_SIZE(arr1);
-    npy_intp len2 = PyArray_SIZE(arr2);
-
-    if (len1 != len2) {
-        PyErr_SetString(PyExc_ValueError, "Inputs have different lengths");
-        return NULL;
-    }
-
-    if (len1 <= 2) {
-        return Py_BuildValue("OO", arr1_obj, arr2_obj);
-    }
-
     if (!check_numpy_array(arr1_obj)) {
         return NULL;
     }
@@ -55,14 +40,22 @@ static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
         return NULL;
     }
 
-    if (!PyArray_ISCARRAY(arr1) || !PyArray_ISCARRAY(arr2)) {
-        PyErr_SetString(PyExc_TypeError, "Input arrays must be contiguous C-style");
+    PyArrayObject* arr1 = reinterpret_cast<PyArrayObject*>(arr1_obj);
+    PyArrayObject* arr2 = reinterpret_cast<PyArrayObject*>(arr2_obj);
+
+    npy_intp nPoints = PyArray_SIZE(arr1);
+
+    if (nPoints != PyArray_SIZE(arr2)) {
+        PyErr_SetString(PyExc_ValueError, "Inputs have different lengths");
         return NULL;
+    }
+
+    if (nPoints <= 2) {
+        return Py_BuildValue("OO", arr1_obj, arr2_obj);
     }
 
     double* data1 = static_cast<double*>(PyArray_DATA(arr1));
     double* data2 = static_cast<double*>(PyArray_DATA(arr2));
-    npy_intp nPoints = PyArray_SIZE(arr1);
 
     std::vector<rdp::Point2D> points;
     points.reserve(nPoints);
