@@ -21,13 +21,13 @@ int check_numpy_array(PyObject* obj) {
 static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
     PyObject* arr1_obj;
     PyObject* arr2_obj;
-    double param;
+    double epsilon;
     
-    if (!PyArg_ParseTuple(args, "OOd", &arr1_obj, &arr2_obj, &param)) {
+    if (!PyArg_ParseTuple(args, "OOd", &arr1_obj, &arr2_obj, &epsilon)) {
         return NULL;
     }
 
-    if (param < 0.0) {
+    if (epsilon < 0.0) {
         PyErr_SetString(PyExc_ValueError, "epsilon must be non-negative");
         return NULL;
     }
@@ -68,7 +68,7 @@ static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
     indicesToKeep.reserve(nPoints);
     indicesToKeep.push_back(0);
 
-    rdp::RamerDouglasPeucker(points, 0, nPoints - 1, param * param, indicesToKeep);
+    rdp::RamerDouglasPeucker(points, 0, nPoints - 1, epsilon * epsilon, indicesToKeep);
 
     // Create new NumPy arrays to return
     std::size_t nIndices = indicesToKeep.size();
