@@ -164,7 +164,7 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Create GitHub release
-        # if: inputs.dry-run == false
+        if: inputs.dry-run == false
         id: github-release
         uses: softprops/action-gh-release@v1
         with:
