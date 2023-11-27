@@ -97,8 +97,9 @@ static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
 }
 
 // Documentation string
-PyDoc_STRVAR(rdp_doc, "rdp(arr1, arr2, epsilon)\n\n\
-Compute approximation using the Ramer-Douglas-Peucker algorithm");
+PyDoc_STRVAR(rdp_doc, "rdp(x, y, epsilon)\n\n"
+"The input is a curve sampled at the points `(x[i], y[i])` from NumPy vectors `x` and `y`.\n"
+"Select a subset of the points as a coarser approximation using the Ramer-Douglas-Peucker algorithm with tolerance `epsilon`.");
 
 static PyMethodDef module_methods[] = {
     {"rdp", rdp_wrapper, METH_VARARGS, rdp_doc},
