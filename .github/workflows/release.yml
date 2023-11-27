@@ -93,9 +93,6 @@ jobs:
         with:
           platforms: arm64
 
-      - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.16.2
-
       - name: Build wheel
         uses: pypa/cibuildwheel@v2.8.1
         env:
@@ -116,7 +113,7 @@ jobs:
           if-no-files-found: error
 
 
-  publish-to-pypi:
+  publish-to-testpypi:
     needs: [create-sdist, build-wheels]
     environment:
       name: TestPyPI
@@ -144,3 +141,34 @@ jobs:
         with:
           password: ${{ secrets.API_TOKEN }}
           verbose: true
+
+
+  publish-to-github:
+    needs: create-sdist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.sha }}
+
+      - name: Download sdist
+        uses: actions/download-artifact@v3
+        with:
+          name: sdist
+          path: dist
+
+      - name: Get version from pyproject.toml
+        id: version
+        run: |
+          VERSION=$(grep -m 1 -oP 'version = "\K[^"]+' pyproject.toml)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub release
+        # if: inputs.dry-run == false
+        id: github-release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: fastrdp ${{ steps.version.outputs.version }}
+          tag_name: v${{ steps.version.outputs.version }}
+          files: dist/fastrdp-${{ steps.version.outputs.version }}.tar.gz
+          token: ${{ secrets.GITHUB_TOKEN }}
