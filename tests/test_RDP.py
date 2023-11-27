@@ -91,3 +91,15 @@ class TestErrorHandling:
     def test_second_input_must_be_floats(self):
         with pytest.raises(TypeError, match="Input must be a Numpy array of type float"):
             rdp(self.x_float, self.x_int, 1)
+
+    def test_error_with_string_input(self):
+        with pytest.raises(TypeError, match="Input must be a Numpy array"):
+            rdp("foo", "bar", 1)
+
+    def test_error_with_list_input(self):
+        with pytest.raises(TypeError, match="Input must be a Numpy array"):
+            rdp([1, 2], self.x_float, 1)
+
+    def test_error_with_number_input(self):
+        with pytest.raises(TypeError, match="Input must be a Numpy array"):
+            rdp(1, self.x_float, 1)
