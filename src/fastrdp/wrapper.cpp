@@ -21,30 +21,15 @@ int check_numpy_array(PyObject* obj) {
 static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
     PyObject* arr1_obj;
     PyObject* arr2_obj;
-    double param;
+    double epsilon;
     
-    if (!PyArg_ParseTuple(args, "OOd", &arr1_obj, &arr2_obj, &param)) {
+    if (!PyArg_ParseTuple(args, "OOd", &arr1_obj, &arr2_obj, &epsilon)) {
         return NULL;
     }
 
-    if (param < 0.0) {
+    if (epsilon < 0.0) {
         PyErr_SetString(PyExc_ValueError, "epsilon must be non-negative");
         return NULL;
-    }
-
-    PyArrayObject* arr1 = reinterpret_cast<PyArrayObject*>(arr1_obj);
-    PyArrayObject* arr2 = reinterpret_cast<PyArrayObject*>(arr2_obj);
-
-    npy_intp len1 = PyArray_SIZE(arr1);
-    npy_intp len2 = PyArray_SIZE(arr2);
-
-    if (len1 != len2) {
-        PyErr_SetString(PyExc_ValueError, "Inputs have different lengths");
-        return NULL;
-    }
-
-    if (len1 <= 2) {
-        return Py_BuildValue("OO", arr1_obj, arr2_obj);
     }
 
     if (!check_numpy_array(arr1_obj)) {
@@ -55,31 +40,38 @@ static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
         return NULL;
     }
 
-    if (!PyArray_ISCARRAY(arr1) || !PyArray_ISCARRAY(arr2)) {
-        PyErr_SetString(PyExc_TypeError, "Input arrays must be contiguous C-style");
+    PyArrayObject* arr1 = reinterpret_cast<PyArrayObject*>(arr1_obj);
+    PyArrayObject* arr2 = reinterpret_cast<PyArrayObject*>(arr2_obj);
+
+    npy_intp nPoints = PyArray_SIZE(arr1);
+
+    if (nPoints != PyArray_SIZE(arr2)) {
+        PyErr_SetString(PyExc_ValueError, "Inputs have different lengths");
         return NULL;
+    }
+
+    if (nPoints <= 2) {
+        return Py_BuildValue("OO", arr1_obj, arr2_obj);
     }
 
     double* data1 = static_cast<double*>(PyArray_DATA(arr1));
     double* data2 = static_cast<double*>(PyArray_DATA(arr2));
-    npy_intp nPoints = PyArray_SIZE(arr1);
 
+    // Prepare input for RDP function
     std::vector<rdp::Point2D> points;
     points.reserve(nPoints);
     for (npy_intp i = 0; i < nPoints; i++) {
         points.push_back({data1[i], data2[i]});
     }
 
-    // Create vectors from the input NumPy arrays
     std::vector<size_t> indicesToKeep;
     indicesToKeep.reserve(nPoints);
     indicesToKeep.push_back(0);
 
-    rdp::RamerDouglasPeucker(points, 0, nPoints - 1, param * param, indicesToKeep);
+    rdp::RamerDouglasPeucker(points, 0, nPoints - 1, epsilon * epsilon, indicesToKeep);
 
-    // Create new NumPy arrays to return
-    std::size_t nIndices = indicesToKeep.size();
-
+    // Create arrays to return
+    size_t nIndices = indicesToKeep.size();
     npy_intp dims[1] = {static_cast<npy_intp>(nIndices)};
 
     PyObject* result1_obj = PyArray_FROM_OTF(PyArray_SimpleNew(1, dims, NPY_DOUBLE), NPY_DOUBLE, NPY_ARRAY_FORCECAST);
@@ -95,16 +87,17 @@ static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
     double* result2_data = static_cast<double*>(PyArray_DATA(reinterpret_cast<PyArrayObject*>(result2_obj)));
 
     for (size_t i = 0; i < nIndices; ++i) {
-        result1_data[i] = data1[indicesToKeep[i]];
-        result2_data[i] = data2[indicesToKeep[i]];
+        size_t index = indicesToKeep[i];
+        result1_data[i] = data1[index];
+        result2_data[i] = data2[index];
     }
 
     return Py_BuildValue("OO", result1_obj, result2_obj);
 }
 
-// Documentation string
-PyDoc_STRVAR(rdp_doc, "rdp(arr1, arr2, epsilon)\n\n\
-Compute approximation using the Ramer-Douglas-Peucker algorithm");
+PyDoc_STRVAR(rdp_doc, "rdp(x, y, epsilon)\n\n"
+"The input is a curve sampled at the points `(x[i], y[i])` from NumPy vectors `x` and `y`.\n"
+"Select a subset of the points as a coarser approximation using the Ramer-Douglas-Peucker algorithm with tolerance `epsilon`.");
 
 static PyMethodDef module_methods[] = {
     {"rdp", rdp_wrapper, METH_VARARGS, rdp_doc},
