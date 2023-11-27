@@ -57,22 +57,21 @@ static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
     double* data1 = static_cast<double*>(PyArray_DATA(arr1));
     double* data2 = static_cast<double*>(PyArray_DATA(arr2));
 
+    // Prepare input for RDP function
     std::vector<rdp::Point2D> points;
     points.reserve(nPoints);
     for (npy_intp i = 0; i < nPoints; i++) {
         points.push_back({data1[i], data2[i]});
     }
 
-    // Create vectors from the input NumPy arrays
     std::vector<size_t> indicesToKeep;
     indicesToKeep.reserve(nPoints);
     indicesToKeep.push_back(0);
 
     rdp::RamerDouglasPeucker(points, 0, nPoints - 1, epsilon * epsilon, indicesToKeep);
 
-    // Create new NumPy arrays to return
+    // Create arrays to return
     size_t nIndices = indicesToKeep.size();
-
     npy_intp dims[1] = {static_cast<npy_intp>(nIndices)};
 
     PyObject* result1_obj = PyArray_FROM_OTF(PyArray_SimpleNew(1, dims, NPY_DOUBLE), NPY_DOUBLE, NPY_ARRAY_FORCECAST);
@@ -96,7 +95,6 @@ static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
     return Py_BuildValue("OO", result1_obj, result2_obj);
 }
 
-// Documentation string
 PyDoc_STRVAR(rdp_doc, "rdp(x, y, epsilon)\n\n"
 "The input is a curve sampled at the points `(x[i], y[i])` from NumPy vectors `x` and `y`.\n"
 "Select a subset of the points as a coarser approximation using the Ramer-Douglas-Peucker algorithm with tolerance `epsilon`.");
