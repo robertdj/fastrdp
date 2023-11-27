@@ -71,7 +71,7 @@ static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
     rdp::RamerDouglasPeucker(points, 0, nPoints - 1, epsilon * epsilon, indicesToKeep);
 
     // Create new NumPy arrays to return
-    std::size_t nIndices = indicesToKeep.size();
+    size_t nIndices = indicesToKeep.size();
 
     npy_intp dims[1] = {static_cast<npy_intp>(nIndices)};
 
@@ -88,8 +88,9 @@ static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
     double* result2_data = static_cast<double*>(PyArray_DATA(reinterpret_cast<PyArrayObject*>(result2_obj)));
 
     for (size_t i = 0; i < nIndices; ++i) {
-        result1_data[i] = data1[indicesToKeep[i]];
-        result2_data[i] = data2[indicesToKeep[i]];
+        size_t index = indicesToKeep[i];
+        result1_data[i] = data1[index];
+        result2_data[i] = data2[index];
     }
 
     return Py_BuildValue("OO", result1_obj, result2_obj);
