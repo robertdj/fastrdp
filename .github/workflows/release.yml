@@ -139,7 +139,6 @@ jobs:
         if: inputs.dry-run == false
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          password: ${{ secrets.API_TOKEN }}
           verbose: true
 
 
@@ -169,7 +168,6 @@ jobs:
         if: inputs.dry-run == false
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          password: ${{ secrets.API_TOKEN }}
           verbose: true
 
 
