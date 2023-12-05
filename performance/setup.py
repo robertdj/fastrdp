@@ -16,7 +16,7 @@ def get_fastrdp_version():
 
 
 def save_results(df: pl.DataFrame):
-    basename = f"{df['Name', 0]}_{df['Version', 0]}.csv"
+    basename = f"{df[0, 'Name']}_{df[0, 'Version']}.csv"
     filename = os.path.join(get_results_folder(), basename)
 
     if os.path.exists(filename):

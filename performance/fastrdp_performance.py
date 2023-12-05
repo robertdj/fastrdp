@@ -1,7 +1,7 @@
-import os
 from timeit import timeit
 from datetime import datetime
 
+from setup import get_fastrdp_version, save_results
 import polars as pl
 import numpy as np
 
@@ -28,11 +28,10 @@ for exp in exponents:
 
 execution_df = pl.DataFrame({
     'Name': 'fastrdp-python',
-    'Version': 'foo',
+    'Version': get_fastrdp_version(),
     'Exponents': exponents,
     'ExecutionTime': execution_times,
     'TimeOfExecution': datetime.now()
 })
 
-save_path = os.path.join(os.path.dirname(__file__), 'execution_time.csv')
-execution_df.write_csv(save_path)
+save_results(execution_df)
