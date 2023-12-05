@@ -11,4 +11,4 @@ if __name__ == '__main__':
     z = np.column_stack((x, y))
 
     runner = pyperf.Runner()
-    runner.timeit('rdp', 'result = rdp(z, 0.06)', globals=locals())
+    runner.timeit('rdp', 'result = rdp(z, 0.1)', globals=locals())
