@@ -143,8 +143,38 @@ jobs:
           verbose: true
 
 
+  publish-to-pypi:
+    needs: publish-to-testpypi
+    environment:
+      name: PyPI
+      url: https://pypi.org/project/fastrdp
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Download sdist
+        uses: actions/download-artifact@v3
+        with:
+          name: sdist
+          path: dist
+
+      - name: Download wheels
+        uses: actions/download-artifact@v3
+        with:
+          name: wheels
+          path: dist
+
+      - name: Publish to PyPI
+        if: inputs.dry-run == false
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.API_TOKEN }}
+          verbose: true
+
+
   publish-to-github:
-    needs: create-sdist
+    needs: publish-to-pypi
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
