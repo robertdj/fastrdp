@@ -160,3 +160,5 @@ cython_debug/
 #.idea/
 
 performance/*.json
+performance/*.csv
+performance/results
