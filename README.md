@@ -1,5 +1,7 @@
 # fastrdp
 
+![PyPI - Version](https://img.shields.io/pypi/v/fastrdp.png)
+
 The *fastrdp* package contains an implementation of the
 [Ramer–Douglas–Peucker
 algorithm](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm)
