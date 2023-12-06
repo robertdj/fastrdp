@@ -113,38 +113,8 @@ jobs:
           if-no-files-found: error
 
 
-  publish-to-testpypi:
-    needs: [create-sdist, build-wheels]
-    environment:
-      name: TestPyPI
-      url: https://test.pypi.org/project/fastrdp
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-
-    steps:
-      - name: Download sdist
-        uses: actions/download-artifact@v3
-        with:
-          name: sdist
-          path: dist
-
-      - name: Download wheels
-        uses: actions/download-artifact@v3
-        with:
-          name: wheels
-          path: dist
-
-      - name: Publish to TestPyPI
-        if: inputs.dry-run == false
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://test.pypi.org/legacy/
-          verbose: true
-
-
   publish-to-pypi:
-    needs: publish-to-testpypi
+    needs: [create-sdist, build-wheels]
     environment:
       name: PyPI
       url: https://pypi.org/project/fastrdp
