@@ -1,6 +1,8 @@
 # fastrdp
 
-![PyPI - Version](https://img.shields.io/pypi/v/fastrdp.png)
+<a href="https://pypi.org/project/fastrdp/">
+<img src="https://img.shields.io/pypi/v/fastrdp" alt="PyPI Latest Release"/>
+</a>
 
 The *fastrdp* package contains an implementation of the
 [Ramer–Douglas–Peucker
@@ -43,8 +45,9 @@ timeit(lambda: fastrdp.rdp(x, y, 0.1), number=10_000)
 
     0.9878715319791809
 
-The implementation in the [*rdp* package](https://pypi.org/project/rdp)
-takes more than a second to finish the same computation
+The pure Python implementation in the [*rdp*
+package](https://pypi.org/project/rdp) takes more than a second to
+finish the same computation
 
 ``` python
 import rdp
