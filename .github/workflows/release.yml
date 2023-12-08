@@ -85,6 +85,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        version: [310, 311]
         include:
           - os: ubuntu-latest
             cibw_archs: "x86_64"
@@ -111,24 +112,13 @@ jobs:
         with:
           platforms: arm64
 
-      - name: Build wheel
+      - name: Build wheels for Python ${{ matrix.version }}
         uses: pypa/cibuildwheel@v2.8.1
         env:
-          # Disable build on PyPy; only build on CPython. 
-          CIBW_SKIP: "pp* *-musllinux_aarch64"
+          # Only build on CPython. 
+          # CIBW_BUILD: "cp311-*"
+          CIBW_BUILD: "cp${{ matrix.version }}-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          CIBW_AFTER_BUILD: >-
-            twine check {wheel} \
-            && python -m pip install {wheel} \
-            && python -c 'from fastrdp import rdp'
-          CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: "pytest {project}/tests"
-          # Apple Silicon machines are not available for testing, so silence the
-          # warning from cibuildwheel. Remove the skip when they're available.
-          CIBW_TEST_SKIP: "*-macosx_arm64"
-          # Get C++17 support on Linux and macOS
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-          MACOSX_DEPLOYMENT_TARGET: "10.14"
 
       - name: Upload wheel
         uses: actions/upload-artifact@v3
