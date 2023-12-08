@@ -44,11 +44,14 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install build wheel
+          pip install build twine wheel
 
       - name: Create source distribution
         run: |
           python -m build --sdist
+
+      - name: Check README rendering for PyPI
+        run: twine check dist/*
 
       - name: Test sdist
         run: |
