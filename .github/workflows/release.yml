@@ -68,7 +68,6 @@ jobs:
   build-wheels:
     runs-on: ${{ matrix.os }}
     env:
-      # Disable build on PyPy; only build on CPython. 
       CIBW_SKIP: "*-musllinux_aarch64"
       CIBW_AFTER_BUILD: >-
         twine check {wheel} \
@@ -116,7 +115,6 @@ jobs:
         uses: pypa/cibuildwheel@v2.8.1
         env:
           # Only build on CPython. 
-          # CIBW_BUILD: "cp311-*"
           CIBW_BUILD: "cp${{ matrix.version }}-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
