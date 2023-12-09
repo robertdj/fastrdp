@@ -111,12 +111,18 @@ jobs:
         with:
           platforms: arm64
 
+      - name: Python version for cibuildwheel
+        run: |
+          CIBUILDWHEEL_VERSION=${echo ${{ matrix.PYTHON_VERSION }} | sed 's/\.//'}
+          echo $CIBUILDWHEEL_VERSION
+          echo $CIBUILDWHEEL_VERSION >> $GITHUB_ENV
+
       - name: Build wheels for Python ${{ matrix.PYTHON_VERSION }}
         uses: pypa/cibuildwheel@v2.8.1
         env:
           # Only build on CPython. 
           # CIBW_BUILD: "cp${{ matrix.PYTHON_VERSION }}-*"
-          CIBW_BUILD: "cp$(echo ${{ matrix.PYTHON_VERSION }} | sed 's/\.//')-*"
+          CIBW_BUILD: "cp${{ env.CIBUILDWHEEL_VERSION }}-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Upload wheel
