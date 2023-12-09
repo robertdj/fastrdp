@@ -17,8 +17,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  PYTHON_VERSION: '3.11'
+# env:
+#   PYTHON_VERSION: '3.11'
 
 defaults:
   run:
@@ -30,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [fastrdp]
+        PYTHON_VERSION: ['3.11']
 
     steps:
       - uses: actions/checkout@v4
@@ -84,7 +84,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: [310, 311]
+        PYTHON_VERSION: ["3.10", "3.11"]
         include:
           - os: ubuntu-latest
             cibw_archs: "x86_64"
@@ -111,11 +111,12 @@ jobs:
         with:
           platforms: arm64
 
-      - name: Build wheels for Python ${{ matrix.version }}
+      - name: Build wheels for Python ${{ matrix.PYTHON_VERSION }}
         uses: pypa/cibuildwheel@v2.8.1
         env:
           # Only build on CPython. 
-          CIBW_BUILD: "cp${{ matrix.version }}-*"
+          # CIBW_BUILD: "cp${{ matrix.PYTHON_VERSION }}-*"
+          CIBW_BUILD: "cp$(echo ${{ matrix.PYTHON_VERSION }} | sed 's/\.//')-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Upload wheel
