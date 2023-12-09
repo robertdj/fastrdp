@@ -113,7 +113,7 @@ jobs:
 
       - name: Python version for cibuildwheel
         run: |
-          CIBUILDWHEEL_VERSION=${echo ${{ matrix.PYTHON_VERSION }} | sed 's/\.//'}
+          CIBUILDWHEEL_VERSION=$(echo ${{ matrix.PYTHON_VERSION }} | sed "s/\.//")
           echo $CIBUILDWHEEL_VERSION
           echo $CIBUILDWHEEL_VERSION >> $GITHUB_ENV
 
