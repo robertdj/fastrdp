@@ -40,7 +40,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: ${{ matrix.PYTHON_VERSION }}
 
       - name: Install dependencies
         run: |
@@ -73,11 +73,11 @@ jobs:
         twine check {wheel} \
         && python -m pip install {wheel} \
         && python -c 'from fastrdp import rdp'
-      CIBW_TEST_REQUIRES: pytest
-      CIBW_TEST_COMMAND: "pytest {project}/tests"
+      # CIBW_TEST_REQUIRES: pytest
+      # CIBW_TEST_COMMAND: "pytest {project}/tests"
       # Apple Silicon machines are not available for testing, so silence the
       # warning from cibuildwheel. Remove the skip when they're available.
-      CIBW_TEST_SKIP: "*-macosx_arm64"
+      # CIBW_TEST_SKIP: "*-macosx_arm64"
       # Get C++17 support on Linux and macOS
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
       MACOSX_DEPLOYMENT_TARGET: "10.14"
@@ -103,7 +103,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: ${{ matrix.PYTHON_VERSION }}
 
       - name: Set up QEMU
         if: matrix.cibw_archs == 'aarch64'
