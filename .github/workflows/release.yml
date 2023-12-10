@@ -85,22 +85,25 @@ jobs:
       fail-fast: false
       matrix:
         PYTHON_VERSION: ["3.10", "3.11"]
-        include:
-          - os: ubuntu-latest
-            cibw_archs: "x86_64"
-          # - os: ubuntu-latest
-          #   cibw_archs: "aarch64"
-          # - os: windows-latest
-          #   cibw_archs: "auto64"
-          # - os: macos-latest
-          #   cibw_archs: "x86_64 arm64"
+        # os: [ubuntu-latest, windows-latest, macos-latest]
+        platform: [ {os: ubuntu-latest, cibw_archs: x86_64}, {os: ubuntu-latest, cibw_archs: aarch64}, {os: windows-latest, cibw_archs: auto64}, {os: macos-latest, cibw_archs: "x86_64 arm64"} ]
+        # include:
+        #   - os: ubuntu-latest
+        #     cibw_archs: "x86_64"
+        #   - os: ubuntu-latest
+        #     cibw_archs: "aarch64"
+        #   - os: windows-latest
+        #     cibw_archs: "auto64"
+        #   - os: macos-latest
+        #     cibw_archs: "x86_64 arm64"
+    runs-on: ${{ matrix.platform.os }}
 
     steps:
       - name: Python version for cibuildwheel
         run: |
           echo ${{ matrix.PYTHON_VERSION }}
-          echo ${{ matrix.os }}
-          echo ${{ matrix.cibw_archs }}
+          echo ${{ matrix.platform.os }}
+          echo ${{ matrix.platform.cibw_archs }}
 
       - uses: actions/checkout@v4
         with:
@@ -112,7 +115,7 @@ jobs:
           python-version: ${{ matrix.PYTHON_VERSION }}
 
       - name: Set up QEMU
-        if: matrix.cibw_archs == 'aarch64'
+        if: matrix.platform.cibw_archs == 'aarch64'
         uses: docker/setup-qemu-action@v2
         with:
           platforms: arm64
@@ -128,7 +131,7 @@ jobs:
         env:
           # Only build on CPython. 
           CIBW_BUILD: "cp${{ env.CIBW_PYTHON_VERSION }}-*"
-          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          CIBW_ARCHS: ${{ matrix.platform.cibw_archs }}
 
       - name: Upload wheel
         uses: actions/upload-artifact@v3
