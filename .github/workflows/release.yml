@@ -96,6 +96,12 @@ jobs:
             cibw_archs: "x86_64 arm64"
 
     steps:
+      - name: Python version for cibuildwheel
+        run: |
+          echo ${{ matrix.PYTHON_VERSION }}
+          echo ${{ matrix.os }}
+          echo ${{ matrix.cibw_archs }}
+
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.sha }}
