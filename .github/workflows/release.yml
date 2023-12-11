@@ -68,7 +68,7 @@ jobs:
   build-wheels:
     env:
       CIBW_SKIP: "*-musllinux_aarch64"
-      CIBW_TEST_COMMAND: python -c 'from fastrdp import rdp'
+      CIBW_TEST_COMMAND: python -c "from fastrdp import rdp"
       # Apple Silicon machines are not available for testing, so silence the
       # warning from cibuildwheel. Remove the skip when they're available.
       # CIBW_TEST_SKIP: "*-macosx_arm64"
