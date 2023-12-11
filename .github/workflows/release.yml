@@ -78,7 +78,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        PYTHON_VERSION: ["3.10", "3.11"]
+        PYTHON_VERSION: ["3.9", "3.10"]
         # os: [ubuntu-latest, windows-latest, macos-latest]
         platform: [ {os: ubuntu-latest, cibw_archs: x86_64}, {os: ubuntu-latest, cibw_archs: aarch64}, {os: windows-latest, cibw_archs: auto64}, {os: macos-latest, cibw_archs: "x86_64 arm64"} ]
         # include:
