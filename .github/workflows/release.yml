@@ -71,7 +71,7 @@ jobs:
       CIBW_TEST_COMMAND: python -c "from fastrdp import rdp"
       # Apple Silicon machines are not available for testing, so silence the
       # warning from cibuildwheel. Remove the skip when they're available.
-      # CIBW_TEST_SKIP: "*-macosx_arm64"
+      CIBW_TEST_SKIP: "*-macosx_arm64"
       # Get C++17 support on Linux and macOS
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
       MACOSX_DEPLOYMENT_TARGET: "10.14"
