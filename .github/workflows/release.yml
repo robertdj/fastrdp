@@ -66,6 +66,12 @@ jobs:
 
 
   build-wheels:
+    strategy:
+      fail-fast: false
+      matrix:
+        python_version: ["39", "310", "311"]
+        platform: [ {os: ubuntu-latest, cibw_archs: x86_64}, {os: ubuntu-latest, cibw_archs: aarch64}, {os: windows-latest, cibw_archs: auto64}, {os: macos-latest, cibw_archs: "x86_64 arm64"} ]
+    runs-on: ${{ matrix.platform.os }}
     env:
       CIBW_SKIP: "*-musllinux_aarch64"
       CIBW_TEST_COMMAND: python -c "from fastrdp import rdp"
@@ -75,22 +81,11 @@ jobs:
       # Get C++17 support on Linux and macOS
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
       MACOSX_DEPLOYMENT_TARGET: "10.14"
-    strategy:
-      fail-fast: false
-      matrix:
-        PYTHON_VERSION: ["3.9", "3.10", "3.11"]
-        platform: [ {os: ubuntu-latest, cibw_archs: x86_64}, {os: ubuntu-latest, cibw_archs: aarch64}, {os: windows-latest, cibw_archs: auto64}, {os: macos-latest, cibw_archs: "x86_64 arm64"} ]
-    runs-on: ${{ matrix.platform.os }}
 
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.sha }}
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.PYTHON_VERSION }}
 
       - name: Set up QEMU
         if: matrix.platform.cibw_archs == 'aarch64'
@@ -98,17 +93,11 @@ jobs:
         with:
           platforms: arm64
 
-      - name: Python version for cibuildwheel
-        run: |
-          CIBW_PYTHON_VERSION=$(echo ${{ matrix.PYTHON_VERSION }} | sed "s/\.//")
-          echo "Setting envvar CIBW_PYTHON_VERSION to $CIBW_PYTHON_VERSION"
-          echo "CIBW_PYTHON_VERSION=$CIBW_PYTHON_VERSION" >> $GITHUB_ENV
-
-      - name: Build wheels for Python ${{ matrix.PYTHON_VERSION }}
+      - name: Build wheels for Python ${{ matrix.python_version }}
         uses: pypa/cibuildwheel@v2.16.2
         env:
           # Only build on CPython. 
-          CIBW_BUILD: "cp${{ env.CIBW_PYTHON_VERSION }}-*"
+          CIBW_BUILD: "cp${{ matrix.python_version }}-*"
           CIBW_ARCHS: ${{ matrix.platform.cibw_archs }}
 
       - name: Upload wheel
