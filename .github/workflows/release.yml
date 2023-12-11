@@ -30,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        PYTHON_VERSION: ['3.11']
+        PYTHON_VERSION: ["3.11"]
 
     steps:
       - uses: actions/checkout@v4
@@ -56,7 +56,7 @@ jobs:
       - name: Test sdist
         run: |
           pip install --force-reinstall --verbose dist/*.tar.gz
-          python -c 'from fastrdp import rdp'
+          python -c "from fastrdp import rdp"
 
       - name: Upload sdist
         uses: actions/upload-artifact@v3
@@ -70,7 +70,12 @@ jobs:
       fail-fast: false
       matrix:
         python_version: ["39", "310", "311"]
-        platform: [ {os: ubuntu-latest, cibw_archs: x86_64}, {os: ubuntu-latest, cibw_archs: aarch64}, {os: windows-latest, cibw_archs: auto64}, {os: macos-latest, cibw_archs: "x86_64 arm64"} ]
+        platform: [
+          {os: ubuntu-latest, cibw_archs: x86_64},
+          {os: ubuntu-latest, cibw_archs: aarch64},
+          {os: windows-latest, cibw_archs: auto64},
+          {os: macos-latest, cibw_archs: "x86_64 arm64"}
+        ]
     runs-on: ${{ matrix.platform.os }}
     env:
       CIBW_SKIP: "*-musllinux_aarch64"
