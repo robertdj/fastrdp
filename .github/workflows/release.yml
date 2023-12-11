@@ -80,24 +80,9 @@ jobs:
       matrix:
         PYTHON_VERSION: ["3.9", "3.10", "3.11"]
         platform: [ {os: ubuntu-latest, cibw_archs: x86_64}, {os: ubuntu-latest, cibw_archs: aarch64}, {os: windows-latest, cibw_archs: auto64}, {os: macos-latest, cibw_archs: "x86_64 arm64"} ]
-        # include:
-        #   - os: ubuntu-latest
-        #     cibw_archs: "x86_64"
-        #   - os: ubuntu-latest
-        #     cibw_archs: "aarch64"
-        #   - os: windows-latest
-        #     cibw_archs: "auto64"
-        #   - os: macos-latest
-        #     cibw_archs: "x86_64 arm64"
     runs-on: ${{ matrix.platform.os }}
 
     steps:
-      - name: Python version for cibuildwheel
-        run: |
-          echo ${{ matrix.PYTHON_VERSION }}
-          echo ${{ matrix.platform.os }}
-          echo ${{ matrix.platform.cibw_archs }}
-
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.sha }}
