@@ -55,9 +55,9 @@ z = np.column_stack((x, y))
 timeit(lambda: rdp.rdp(z, epsilon=0.1), number=1)
 ```
 
-To illustrate how *fastrdp* scales with the number of observations
-consider the following graph. This is for random input and it is
-expected that the output has a size similar to the output.
+To illustrate how *fastrdp* scales consider the following graph that
+shows execution time for an increasing number of random input points.
+The figure is produced with the scripts in the `performance` folder.
 
 ![](https://github.com/robertdj/fastrdp/raw/main/README_files/performance.png)
 

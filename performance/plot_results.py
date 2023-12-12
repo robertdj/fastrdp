@@ -19,7 +19,7 @@ p = (
     + pn.scale_x_log10()
     + pn.xlab('Number of points')
     + pn.scale_y_log10()
-    + pn.ylab('Execution time')
+    + pn.ylab('Execution time [seconds]')
     + pn.geom_point()
     + pn.geom_line()
 )
