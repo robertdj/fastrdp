@@ -66,7 +66,6 @@ legacy `setup.py` is used.
 Execute the following commands to build and install *fastrdp*
 
 ``` bash
-python setup.py build
 pip install .
 ```
 
