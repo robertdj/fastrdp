@@ -31,7 +31,6 @@ jobs:
 
       - name: Install RDP & dependencies
         run: |
-          python setup.py build
           pip install '.[dev]'
 
       - name: Run tests
@@ -63,7 +62,6 @@ jobs:
 
     - name: Install RDP & dependencies
       run: |
-        python setup.py build
         pip install '.[docs]'
 
     - name: Render Quarto Project
