@@ -1,11 +1,14 @@
 import os
+from pathlib import PosixPath
+
 from importlib.metadata import version
+from pyprojroot.here import here
 
 import polars as pl
 import numpy as np
 
 
-def get_results_folder():
+def get_results_folder() -> str:
     results_folder = os.path.join(os.path.dirname(__file__), 'results')
     return results_folder
 
@@ -25,12 +28,18 @@ def save_results(df: pl.DataFrame, prefix: str = ''):
     df.write_csv(filename)
 
 
+def get_readme_image_folder() -> PosixPath:
+    project_root = here()
+    readme_image_folder = project_root.joinpath('README_files')
+    return readme_image_folder
+
+
 if __name__ == "__main__":
     results_folder = get_results_folder()
     if not os.path.exists(results_folder):
         os.makedirs(results_folder)
 
-    max_exp = 6
+    max_exp = 7
     max_size = pow(10, max_exp)
 
     df1 = pl.DataFrame({
