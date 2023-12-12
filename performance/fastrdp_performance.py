@@ -1,13 +1,43 @@
-import pyperf
+import os
+from timeit import timeit
+from datetime import datetime
 
-from fastrdp import rdp
+from .setup import get_fastrdp_version, get_results_folder, save_results
+import polars as pl
 import numpy as np
 
-if __name__ == '__main__':
-    size = 10_000
+from fastrdp import rdp
 
-    x = np.random.rand(size)
-    y = np.random.rand(size)
 
-    runner = pyperf.Runner()
-    runner.timeit('fastrdp', 'result = rdp(x, y, 0.06)', globals=locals())
+def measure_execution_times(df: pl.DataFrame) -> pl.DataFrame:
+    max_size = df.height
+    max_exp = int(np.log10(max_size))
+
+    exponents = list(range(4, max_exp + 1))
+
+    execution_times = []
+    for exp in exponents:
+        print(exp)
+        size = pow(10, exp)
+        this_x = df.slice(0, size).get_column('x').to_numpy()
+        this_y = df.slice(0, size).get_column('y').to_numpy()
+        repetitions = 1 if exp >= 6 else 10
+
+        total_time = timeit(lambda: rdp(this_x, this_y, 0.1), number=repetitions)
+        average_time = total_time / repetitions
+        execution_times.append(average_time)
+
+    execution_df = pl.DataFrame({
+        'Name': 'fastrdp-python',
+        'Version': get_fastrdp_version(),
+        'Exponent': exponents,
+        'ExecutionTime': execution_times,
+        'TimeOfExecution': datetime.now()
+    })
+
+    return execution_df
+
+
+random_input = pl.read_parquet(os.path.join(get_results_folder(), 'random.parquet'))
+random_execution_times = measure_execution_times(random_input)
+save_results(random_execution_times, 'random_')
