@@ -84,22 +84,14 @@ class TestErrorHandling:
         with pytest.raises(ValueError, match="Inputs have different lengths"):
             rdp(self.x_float[1:2], self.x_float, 1)
 
-    def test_first_input_must_be_floats(self):
+    def test_input_must_be_floats(self):
         with pytest.raises(TypeError, match="Input must be a Numpy array of type float"):
             rdp(self.x_int, self.x_float, 1)
 
-    def test_second_input_must_be_floats(self):
         with pytest.raises(TypeError, match="Input must be a Numpy array of type float"):
             rdp(self.x_float, self.x_int, 1)
 
-    def test_error_with_string_input(self):
+    @pytest.mark.parametrize("x", ["foo", [1, 2], 1, 1.0])
+    def test_error_when_input_is_not_numpy_array(self, x):
         with pytest.raises(TypeError, match="Input must be a Numpy array"):
-            rdp("foo", "bar", 1)
-
-    def test_error_with_list_input(self):
-        with pytest.raises(TypeError, match="Input must be a Numpy array"):
-            rdp([1, 2], self.x_float, 1)
-
-    def test_error_with_number_input(self):
-        with pytest.raises(TypeError, match="Input must be a Numpy array"):
-            rdp(1, self.x_float, 1)
+            rdp(x, self.x_float, 1)
