@@ -17,8 +17,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  PYTHON_VERSION: '3.11'
+# env:
+#   PYTHON_VERSION: '3.11'
 
 defaults:
   run:
@@ -30,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [fastrdp]
+        PYTHON_VERSION: ["3.11"]
 
     steps:
       - uses: actions/checkout@v4
@@ -40,20 +40,23 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: ${{ matrix.PYTHON_VERSION }}
 
       - name: Install dependencies
         run: |
-          pip install build wheel
+          pip install build twine wheel
 
       - name: Create source distribution
         run: |
           python -m build --sdist
 
+      - name: Check README rendering for PyPI
+        run: twine check dist/*
+
       - name: Test sdist
         run: |
           pip install --force-reinstall --verbose dist/*.tar.gz
-          python -c 'from fastrdp import rdp'
+          python -c "from fastrdp import rdp"
 
       - name: Upload sdist
         uses: actions/upload-artifact@v3
@@ -63,47 +66,44 @@ jobs:
 
 
   build-wheels:
-    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-latest
-            cibw_archs: "x86_64"
-          - os: ubuntu-latest
-            cibw_archs: "aarch64"
-          - os: windows-latest
-            cibw_archs: "auto64"
-          - os: macos-latest
-            cibw_archs: "x86_64 arm64"
+        python_version: ["39", "310", "311"]
+        platform: [
+          {os: ubuntu-latest, cibw_archs: x86_64},
+          {os: ubuntu-latest, cibw_archs: aarch64},
+          {os: windows-latest, cibw_archs: auto64},
+          {os: macos-latest, cibw_archs: "x86_64 arm64"}
+        ]
+    runs-on: ${{ matrix.platform.os }}
+    env:
+      CIBW_SKIP: "*-musllinux_aarch64"
+      CIBW_TEST_COMMAND: python -c "from fastrdp import rdp"
+      # Apple Silicon machines are not available for testing, so silence the
+      # warning from cibuildwheel. Remove the skip when they're available.
+      CIBW_TEST_SKIP: "*-macosx_arm64"
+      # Get C++17 support on Linux and macOS
+      CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+      MACOSX_DEPLOYMENT_TARGET: "10.14"
 
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.sha }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
       - name: Set up QEMU
-        if: matrix.cibw_archs == 'aarch64'
+        if: matrix.platform.cibw_archs == 'aarch64'
         uses: docker/setup-qemu-action@v2
         with:
           platforms: arm64
 
-      - name: Build wheel
-        uses: pypa/cibuildwheel@v2.8.1
+      - name: Build wheels for Python ${{ matrix.python_version }}
+        uses: pypa/cibuildwheel@v2.16.2
         env:
-          # Disable build on PyPy; only build on CPython. 
-          CIBW_SKIP: pp*
-          CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: "pytest {project}/tests"
-          # Apple Silicon machines are not available for testing, so silence the
-          # warning from cibuildwheel. Remove the skip when they're available.
-          CIBW_TEST_SKIP: "*-macosx_arm64"
+          # Only build on CPython. 
+          CIBW_BUILD: "cp${{ matrix.python_version }}-*"
+          CIBW_ARCHS: ${{ matrix.platform.cibw_archs }}
 
       - name: Upload wheel
         uses: actions/upload-artifact@v3
