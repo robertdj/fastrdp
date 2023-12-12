@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fastrdp"
-version = "0.0.2"
+version = "0.0.3"
 description = "Implementation of the Ramer-Douglas-Peucker algorithm"
 readme = "README.md"
 authors = [{ name = "Robert Dahl Jacobsen" }]
@@ -13,9 +13,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
 ]
-dependencies = [
-    "numpy >= 1.20",
-]
+dependencies = ["numpy >= 1.20"]
 requires-python = ">=3.9"
 
 [project.optional-dependencies]
