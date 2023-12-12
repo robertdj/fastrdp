@@ -1,3 +1,2 @@
 include MANIFEST.in
 include src/fastrdp/RamerDouglasPeucker.h
-recursive-include README_files *.png
