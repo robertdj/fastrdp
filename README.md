@@ -30,7 +30,7 @@ ax.plot(x_new, y_new, linestyle='dashed', color='red')
 plt.show()
 ```
 
-![](README_files/figure-commonmark/cell-2-output-1.png)
+![](https://github.com/robertdj/fastrdp/raw/main/README_files/figure-commonmark/cell-2-output-1.png)
 
 # Performance
 

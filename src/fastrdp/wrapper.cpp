@@ -95,6 +95,7 @@ static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
     return Py_BuildValue("OO", result1_obj, result2_obj);
 }
 
+
 PyDoc_STRVAR(rdp_doc, "rdp(x, y, epsilon)\n\n"
 "The input is a curve sampled at the points `(x[i], y[i])` from NumPy vectors `x` and `y`.\n"
 "Select a subset of the points as a coarser approximation using the Ramer-Douglas-Peucker algorithm with tolerance `epsilon`.");
@@ -104,6 +105,7 @@ static PyMethodDef module_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
+
 static struct PyModuleDef module_def = {
     PyModuleDef_HEAD_INIT,
     "fastrdp",
@@ -111,6 +113,7 @@ static struct PyModuleDef module_def = {
     -1,
     module_methods
 };
+
 
 PyMODINIT_FUNC PyInit_fastrdp(void) {
     // Initialize NumPy
