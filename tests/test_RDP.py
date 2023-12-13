@@ -72,26 +72,31 @@ class TestEdgeCases:
         assert_array_equal(y, y_new)
 
 
+class TestCastingInputs:
+    def test_inputs_are_casted_to_numpy(self):
+        x = np.array([1.0, 2])
+        x_new, _ = rdp(x.tolist(), x, 0)
+        assert_array_equal(x, x_new)
+
+
 class TestErrorHandling:
     x_int = np.array([1, 2, 3])
     x_float = np.array([1.0, 2, 3])
 
     def test_error_when_epsilon_is_negative(self):
         with pytest.raises(ValueError, match="epsilon must be non-negative"):
-            rdp(self.x_int, self.x_int, -1)
+            rdp(self.x_float, self.x_float, -1)
 
     def test_error_when_input_vectors_have_different_lengths(self):
         with pytest.raises(ValueError, match="Inputs have different lengths"):
             rdp(self.x_float[1:2], self.x_float, 1)
 
-    def test_input_must_be_floats(self):
-        with pytest.raises(TypeError, match="Input must be a Numpy array of type float"):
-            rdp(self.x_int, self.x_float, 1)
-
-        with pytest.raises(TypeError, match="Input must be a Numpy array of type float"):
-            rdp(self.x_float, self.x_int, 1)
-
-    @pytest.mark.parametrize("x", ["foo", [1, 2], 1, 1.0])
-    def test_error_when_input_is_not_numpy_array(self, x):
-        with pytest.raises(TypeError, match="Input must be a Numpy array"):
+    @pytest.mark.parametrize("x", ["foo"])
+    def test_error_when_input_is_not_numpy_like(self, x):
+        with pytest.raises(TypeError, match="incompatible function arguments"):
             rdp(x, self.x_float, 1)
+
+    def test_error_when_input_is_not_1dim(self):
+        with pytest.raises(ValueError, match="Inputs should be vectors"):
+            z = np.column_stack((self.x_float, self.x_float))
+            rdp(z, self.x_float, 1)
