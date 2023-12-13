@@ -1,67 +1,45 @@
-#include <Python.h>
-#include <numpy/arrayobject.h>
+#include <vector>
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
 #include "RamerDouglasPeucker.h"
 
+namespace py = pybind11;
 
-int check_numpy_array(PyObject* obj) {
-    if (!PyArray_Check(obj)) {
-        PyErr_SetString(PyExc_TypeError, "Input must be a Numpy array");
-        return 0;
+std::pair<py::array_t<double>, py::array_t<double>> rdp_wrapper(py::array_t<double> array1, py::array_t<double> array2, double epsilon)
+{
+    if (epsilon < 0.0)
+    {
+        throw std::domain_error("epsilon must be non-negative");
     }
 
-    if (PyArray_TYPE((PyArrayObject *)obj) != NPY_FLOAT64) {
-        PyErr_SetString(PyExc_TypeError, "Input must be a Numpy array of type float");
-        return 0;
+    // Convert Python numpy arrays to C++ vectors
+    auto ptr1 = array1.request();
+    auto ptr2 = array2.request();
+
+    // Make sure the input arrays have the correct shape and data type
+    // if (array1.ndim != 1 || array2.ndim != 1)
+    //     throw std::domain_error("Inputs should be vectors");
+
+    py::ssize_t nPoints = ptr1.size;
+    if (nPoints != ptr2.size)
+    {
+        throw std::length_error("Inputs have different lengths");
     }
 
-    return 1;
-}
-
-
-static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
-    PyObject* arr1_obj;
-    PyObject* arr2_obj;
-    double epsilon;
-    
-    if (!PyArg_ParseTuple(args, "OOd", &arr1_obj, &arr2_obj, &epsilon)) {
-        return NULL;
+    if (nPoints < 2)
+    {
+        return std::make_pair(array1, array2);
     }
 
-    if (epsilon < 0.0) {
-        PyErr_SetString(PyExc_ValueError, "epsilon must be non-negative");
-        return NULL;
-    }
-
-    if (!check_numpy_array(arr1_obj)) {
-        return NULL;
-    }
-
-    if (!check_numpy_array(arr2_obj)) {
-        return NULL;
-    }
-
-    PyArrayObject* arr1 = reinterpret_cast<PyArrayObject*>(arr1_obj);
-    PyArrayObject* arr2 = reinterpret_cast<PyArrayObject*>(arr2_obj);
-
-    npy_intp nPoints = PyArray_SIZE(arr1);
-
-    if (nPoints != PyArray_SIZE(arr2)) {
-        PyErr_SetString(PyExc_ValueError, "Inputs have different lengths");
-        return NULL;
-    }
-
-    if (nPoints <= 2) {
-        return Py_BuildValue("OO", arr1_obj, arr2_obj);
-    }
-
-    double* data1 = static_cast<double*>(PyArray_DATA(arr1));
-    double* data2 = static_cast<double*>(PyArray_DATA(arr2));
+    std::vector<double> vec1((double *)ptr1.ptr, (double *)ptr1.ptr + ptr1.size);
+    std::vector<double> vec2((double *)ptr2.ptr, (double *)ptr2.ptr + ptr2.size);
 
     // Prepare input for RDP function
     std::vector<rdp::Point2D> points;
     points.reserve(nPoints);
-    for (npy_intp i = 0; i < nPoints; i++) {
-        points.push_back({data1[i], data2[i]});
+    for (auto i = 0; i < nPoints; i++)
+    {
+        points.push_back({vec1[i], vec2[i]});
     }
 
     std::vector<size_t> indicesToKeep;
@@ -72,51 +50,27 @@ static PyObject* rdp_wrapper(PyObject* self, PyObject* args) {
 
     // Create arrays to return
     size_t nIndices = indicesToKeep.size();
-    npy_intp dims[1] = {static_cast<npy_intp>(nIndices)};
+    std::vector<double> xOut(nIndices);
+    std::vector<double> yOut(nIndices);
 
-    PyObject* result1_obj = PyArray_FROM_OTF(PyArray_SimpleNew(1, dims, NPY_DOUBLE), NPY_DOUBLE, NPY_ARRAY_FORCECAST);
-    PyObject* result2_obj = PyArray_FROM_OTF(PyArray_SimpleNew(1, dims, NPY_DOUBLE), NPY_DOUBLE, NPY_ARRAY_FORCECAST);
-
-    if (!result1_obj || !result2_obj) {
-        Py_XDECREF(result1_obj);
-        Py_XDECREF(result2_obj);
-        return NULL;
-    }
-
-    double* result1_data = static_cast<double*>(PyArray_DATA(reinterpret_cast<PyArrayObject*>(result1_obj)));
-    double* result2_data = static_cast<double*>(PyArray_DATA(reinterpret_cast<PyArrayObject*>(result2_obj)));
-
-    for (size_t i = 0; i < nIndices; ++i) {
+    for (size_t i = 0; i < nIndices; ++i)
+    {
         size_t index = indicesToKeep[i];
-        result1_data[i] = data1[index];
-        result2_data[i] = data2[index];
+        xOut[i] = vec1[index];
+        yOut[i] = vec2[index];
     }
 
-    return Py_BuildValue("OO", result1_obj, result2_obj);
+    // Convert C++ vectors to NumPy arrays and return as a pair
+    return std::make_pair(py::array(xOut.size(), xOut.data()), py::array(yOut.size(), yOut.data()));
 }
 
+// Define the pybind11 module
+PYBIND11_MODULE(fastrdp, m)
+{
+    m.def("rdp", &rdp_wrapper, R"mydelimiter(
+        rdp(x, y, epsilon)
 
-PyDoc_STRVAR(rdp_doc, "rdp(x, y, epsilon)\n\n"
-"The input is a curve sampled at the points `(x[i], y[i])` from NumPy vectors `x` and `y`.\n"
-"Select a subset of the points as a coarser approximation using the Ramer-Douglas-Peucker algorithm with tolerance `epsilon`.");
-
-static PyMethodDef module_methods[] = {
-    {"rdp", rdp_wrapper, METH_VARARGS, rdp_doc},
-    {NULL, NULL, 0, NULL}
-};
-
-
-static struct PyModuleDef module_def = {
-    PyModuleDef_HEAD_INIT,
-    "fastrdp",
-    NULL,
-    -1,
-    module_methods
-};
-
-
-PyMODINIT_FUNC PyInit_fastrdp(void) {
-    // Initialize NumPy
-    import_array(); 
-    return PyModule_Create(&module_def);
+        The input is a curve sampled at the points `(x[i], y[i])` from NumPy vectors `x` and `y`.
+        Select a subset of the points as a coarser approximation using the Ramer-Douglas-Peucker algorithm with tolerance `epsilon`.
+)mydelimiter");
 }
