@@ -8,39 +8,29 @@ namespace py = pybind11;
 std::pair<py::array_t<double>, py::array_t<double>> rdp_wrapper(py::array_t<double> array1, py::array_t<double> array2, double epsilon)
 {
     if (epsilon < 0.0)
-    {
         throw std::domain_error("epsilon must be non-negative");
-    }
 
-    // Convert Python numpy arrays to C++ vectors
-    auto ptr1 = array1.request();
-    auto ptr2 = array2.request();
+    py::buffer_info buf1 = array1.request(), buf2 = array2.request();
 
     // Make sure the input arrays have the correct shape and data type
-    // if (array1.ndim != 1 || array2.ndim != 1)
-    //     throw std::domain_error("Inputs should be vectors");
+    if (buf1.ndim != 1 || buf2.ndim != 1)
+        throw std::domain_error("Inputs should be vectors");
 
-    py::ssize_t nPoints = ptr1.size;
-    if (nPoints != ptr2.size)
-    {
+    py::ssize_t nPoints = buf1.size;
+    if (nPoints != buf2.size)
         throw std::length_error("Inputs have different lengths");
-    }
 
     if (nPoints < 2)
-    {
         return std::make_pair(array1, array2);
-    }
 
-    std::vector<double> vec1((double *)ptr1.ptr, (double *)ptr1.ptr + ptr1.size);
-    std::vector<double> vec2((double *)ptr2.ptr, (double *)ptr2.ptr + ptr2.size);
+    std::vector<double> vec1((double *)buf1.ptr, (double *)buf1.ptr + buf1.size);
+    std::vector<double> vec2((double *)buf2.ptr, (double *)buf2.ptr + buf2.size);
 
     // Prepare input for RDP function
     std::vector<rdp::Point2D> points;
     points.reserve(nPoints);
     for (auto i = 0; i < nPoints; i++)
-    {
         points.push_back({vec1[i], vec2[i]});
-    }
 
     std::vector<size_t> indicesToKeep;
     indicesToKeep.reserve(nPoints);
@@ -64,7 +54,6 @@ std::pair<py::array_t<double>, py::array_t<double>> rdp_wrapper(py::array_t<doub
     return std::make_pair(py::array(xOut.size(), xOut.data()), py::array(yOut.size(), yOut.data()));
 }
 
-// Define the pybind11 module
 PYBIND11_MODULE(fastrdp, m)
 {
     m.def("rdp", &rdp_wrapper, R"mydelimiter(
