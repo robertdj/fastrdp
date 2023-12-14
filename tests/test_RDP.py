@@ -80,23 +80,22 @@ class TestCastingInputs:
 
 
 class TestErrorHandling:
-    x_int = np.array([1, 2, 3])
-    x_float = np.array([1.0, 2, 3])
+    x = np.array([1.0, 2, 3])
 
     def test_error_when_epsilon_is_negative(self):
         with pytest.raises(ValueError, match="epsilon must be non-negative"):
-            rdp(self.x_float, self.x_float, -1)
+            rdp(self.x, self.x, -1)
 
     def test_error_when_input_vectors_have_different_lengths(self):
         with pytest.raises(ValueError, match="Inputs have different lengths"):
-            rdp(self.x_float[1:2], self.x_float, 1)
+            rdp(self.x[1:2], self.x, 1)
 
     @pytest.mark.parametrize("x", ["foo"])
     def test_error_when_input_is_not_numpy_like(self, x):
         with pytest.raises(TypeError, match="incompatible function arguments"):
-            rdp(x, self.x_float, 1)
+            rdp(x, self.x, 1)
 
     def test_error_when_input_is_not_1dim(self):
         with pytest.raises(ValueError, match="Inputs should be vectors"):
-            z = np.column_stack((self.x_float, self.x_float))
-            rdp(z, self.x_float, 1)
+            z = np.column_stack((self.x, self.x))
+            rdp(z, self.x, 1)
