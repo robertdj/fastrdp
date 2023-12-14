@@ -30,7 +30,7 @@ ax.plot(x_new, y_new, linestyle='dashed', color='red')
 plt.show()
 ```
 
-![](https://github.com/robertdj/fastrdp/raw/main/README_files/figure-commonmark/cell-2-output-1.png)
+![](README_files/figure-commonmark/cell-2-output-1.png)
 
 # Performance
 
@@ -43,7 +43,7 @@ from timeit import timeit
 timeit(lambda: fastrdp.rdp(x, y, 0.1), number=10_000)
 ```
 
-    0.9878715319791809
+    0.9715354799991474
 
 The pure Python implementation in the [*rdp*
 package](https://pypi.org/project/rdp) takes more than a second to
@@ -55,6 +55,8 @@ z = np.column_stack((x, y))
 timeit(lambda: rdp.rdp(z, epsilon=0.1), number=1)
 ```
 
+    1.636681150062941
+
 To illustrate how *fastrdp* scales consider the following graph that
 shows execution time for an increasing number of random input points.
 The figure is produced with the scripts in the `performance` folder.
@@ -64,10 +66,8 @@ The figure is produced with the scripts in the `performance` folder.
 # Compilation
 
 To specify package metadata *fastrdp* is using the contemporary
-`pyproject.toml`. However, to control compilation of the C++ code a
-legacy `setup.py` is used.
-
-Execute the following commands to build and install *fastrdp*
+`pyproject.toml`. Execute the following commands to build and install
+*fastrdp*
 
 ``` bash
 pip install .
@@ -86,8 +86,6 @@ shells.
 
 # Acknowledgements
 
-Setting up the package build using `pyproject.toml` was not easy, but
-these two blog posts helped tremendeously:
-
-- <https://opensource.com/article/22/11/extend-c-python>
-- <https://opensource.com/article/23/1/packaging-python-modules-wheels>
+Setting up package metadata to build and compile *fastrdp* is inspired
+by the [pybind11 example
+package](https://github.com/pybind/python_example).
