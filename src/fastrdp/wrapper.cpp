@@ -20,7 +20,7 @@ std::pair<py::array_t<double>, py::array_t<double>> rdp_wrapper(py::array_t<doub
     if (nPoints != buf2.size)
         throw std::length_error("Inputs have different lengths");
 
-    if (nPoints < 2)
+    if (nPoints <= 2)
         return std::make_pair(array1, array2);
 
     std::vector<double> vec1((double *)buf1.ptr, (double *)buf1.ptr + buf1.size);
