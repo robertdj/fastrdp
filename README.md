@@ -91,6 +91,3 @@ these two blog posts helped tremendeously:
 
 - <https://opensource.com/article/22/11/extend-c-python>
 - <https://opensource.com/article/23/1/packaging-python-modules-wheels>
-
-In `setup.py` there is a [bootstrap dependency on
-numpy](https://stackoverflow.com/questions/76678675/modulenotfounderror-no-module-named-numpy-problem-installing-it).
