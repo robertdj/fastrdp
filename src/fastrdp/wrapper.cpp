@@ -16,7 +16,7 @@ std::pair<py::array_t<double>, py::array_t<double>> rdp_wrapper(py::array_t<doub
     if (buf1.ndim != 1 || buf2.ndim != 1)
         throw std::domain_error("Inputs should be vectors");
 
-    py::ssize_t nPoints = buf1.size;
+    auto nPoints = buf1.size;
     if (nPoints != buf2.size)
         throw std::length_error("Inputs have different lengths");
 
