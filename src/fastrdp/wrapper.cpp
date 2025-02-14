@@ -5,44 +5,7 @@
 
 namespace py = pybind11;
 
-py::array_t<size_t> rdp_index_wrapper(py::array_t<double> array1, py::array_t<double> array2, double epsilon)
-{
-    if (epsilon < 0.0)
-        throw std::domain_error("epsilon must be non-negative");
-
-    py::buffer_info buf1 = array1.request(), buf2 = array2.request();
-
-    // Make sure the input arrays have the correct shape and data type
-    if (buf1.ndim != 1 || buf2.ndim != 1)
-        throw std::domain_error("Inputs should be vectors");
-
-    auto nPoints = buf1.size;
-    if (nPoints != buf2.size)
-        throw std::length_error("Inputs have different lengths");
-
-    // if (nPoints <= 2)
-    //     return std::make_pair(array1, array2);
-
-    std::vector<double> vec1((double *)buf1.ptr, (double *)buf1.ptr + buf1.size);
-    std::vector<double> vec2((double *)buf2.ptr, (double *)buf2.ptr + buf2.size);
-
-    // Prepare input for RDP function
-    std::vector<rdp::Point2D> points;
-    points.reserve(nPoints);
-    for (auto i = 0; i < nPoints; i++)
-        points.push_back({vec1[i], vec2[i]});
-
-    std::vector<size_t> indicesToKeep;
-    indicesToKeep.reserve(nPoints);
-    indicesToKeep.push_back(0);
-
-    rdp::RamerDouglasPeucker(points, 0, nPoints - 1, epsilon * epsilon, indicesToKeep);
-
-    // return indicesToKeep;
-    return py::array_t<size_t>(indicesToKeep.size(), indicesToKeep.data());
-}
-
-std::pair<py::array_t<double>, py::array_t<double>> rdp_wrapper(py::array_t<double> array1, py::array_t<double> array2, double epsilon)
+std::vector<size_t> rdp_index(py::array_t<double> array1, py::array_t<double> array2, double epsilon)
 {
     if (epsilon < 0.0)
         throw std::domain_error("epsilon must be non-negative");
@@ -58,7 +21,11 @@ std::pair<py::array_t<double>, py::array_t<double>> rdp_wrapper(py::array_t<doub
         throw std::length_error("Inputs have different lengths");
 
     if (nPoints <= 2)
-        return std::make_pair(array1, array2);
+    {
+        std::vector<size_t> trivial_indices(nPoints);
+        std::iota(trivial_indices.begin(), trivial_indices.end(), 0);
+        return trivial_indices;
+    }
 
     std::vector<double> vec1((double *)buf1.ptr, (double *)buf1.ptr + buf1.size);
     std::vector<double> vec2((double *)buf2.ptr, (double *)buf2.ptr + buf2.size);
@@ -75,7 +42,23 @@ std::pair<py::array_t<double>, py::array_t<double>> rdp_wrapper(py::array_t<doub
 
     rdp::RamerDouglasPeucker(points, 0, nPoints - 1, epsilon * epsilon, indicesToKeep);
 
-    // Create arrays to return
+    return indicesToKeep;
+}
+
+py::array_t<size_t> rdp_index_wrapper(py::array_t<double> array1, py::array_t<double> array2, double epsilon)
+{
+    std::vector<size_t> indicesToKeep = rdp_index(array1, array2, epsilon);
+    return py::array_t<size_t>(indicesToKeep.size(), indicesToKeep.data());
+}
+
+std::pair<py::array_t<double>, py::array_t<double>> rdp_wrapper(py::array_t<double> array1, py::array_t<double> array2, double epsilon)
+{
+    std::vector<size_t> indicesToKeep = rdp_index(array1, array2, epsilon);
+
+    py::buffer_info buf1 = array1.request(), buf2 = array2.request();
+    std::vector<double> vec1((double *)buf1.ptr, (double *)buf1.ptr + buf1.size);
+    std::vector<double> vec2((double *)buf2.ptr, (double *)buf2.ptr + buf2.size);
+
     size_t nIndices = indicesToKeep.size();
     std::vector<double> xOut(nIndices);
     std::vector<double> yOut(nIndices);
@@ -87,7 +70,6 @@ std::pair<py::array_t<double>, py::array_t<double>> rdp_wrapper(py::array_t<doub
         yOut[i] = vec2[index];
     }
 
-    // Convert C++ vectors to NumPy arrays and return as a pair
     return std::make_pair(py::array(xOut.size(), xOut.data()), py::array(yOut.size(), yOut.data()));
 }
 
