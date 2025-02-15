@@ -66,10 +66,10 @@ jobs:
       matrix:
         python_version: ["310", "311", "312"]
         platform: [
-          {os: ubuntu-latest, cibw_archs: x86_64},
-          {os: ubuntu-latest, cibw_archs: aarch64},
-          {os: windows-latest, cibw_archs: auto64},
-          {os: macos-latest, cibw_archs: "x86_64 arm64"}
+          {os: ubuntu-24.04, cibw_archs: x86_64},
+          {os: ubuntu-24.04, cibw_archs: aarch64},
+          {os: windows-2022, cibw_archs: win_amd64},
+          {os: macos-14, cibw_archs: "x86_64 arm64"}
         ]
     runs-on: ${{ matrix.platform.os }}
     env:
