@@ -68,7 +68,7 @@ jobs:
         platform: [
           {os: ubuntu-24.04, cibw_archs: x86_64},
           {os: ubuntu-24.04, cibw_archs: aarch64},
-          {os: windows-2022, cibw_archs: win_amd64},
+          {os: windows-2022, cibw_archs: auto},
           {os: macos-14, cibw_archs: "x86_64 arm64"}
         ]
     runs-on: ${{ matrix.platform.os }}
