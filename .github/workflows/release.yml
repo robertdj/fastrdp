@@ -103,7 +103,7 @@ jobs:
       - name: Upload wheel
         uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: "wheel-python-${{ matrix.python_version }}-${{ matrix.platform.os }}-${{ matrix.platform.cibw_archs }}"
           path: ./wheelhouse/*.whl
           if-no-files-found: error
 
