@@ -127,7 +127,7 @@ jobs:
       - name: Download wheels
         uses: actions/download-artifact@v4
         with:
-          name: wheels
+          pattern: wheel-*
           path: dist
 
       - name: Publish to PyPI
