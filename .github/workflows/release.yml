@@ -33,7 +33,7 @@ jobs:
           ref: ${{ inputs.sha }}
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -64,7 +64,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python_version: ["39", "310", "311"]
+        python_version: ["310", "311", "312"]
         platform: [
           {os: ubuntu-latest, cibw_archs: x86_64},
           {os: ubuntu-latest, cibw_archs: aarch64},
@@ -89,12 +89,12 @@ jobs:
 
       - name: Set up QEMU
         if: matrix.platform.cibw_archs == 'aarch64'
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64
 
       - name: Build wheels for Python ${{ matrix.python_version }}
-        uses: pypa/cibuildwheel@v2.16.2
+        uses: pypa/cibuildwheel@v2.22.0
         env:
           # Only build on CPython. 
           CIBW_BUILD: "cp${{ matrix.python_version }}-*"
