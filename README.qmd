@@ -15,7 +15,9 @@ The *fastrdp* package contains an implementation of the [Ramer–Douglas–Peuck
 
 # Example
 
-There is a single function in the *fastrdp* package.
+There are two functions in the *fastrdp* package:
+`rdp` that returns the points by the RDP algorithm and `rdp_index` that returns the indices of the returned points in the input.
+
 Here is an example from the Wikipedia page linked to above with a description of the algorithm.
 The original line is black and the approximating line is red.
 

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
-from fastrdp import rdp
+from fastrdp import rdp, rdp_index
 
 
 class TestVaryingEpsilon:
@@ -10,7 +10,9 @@ class TestVaryingEpsilon:
 
     def test_big_epsilon(self):
         x_new, y_new = rdp(self.x, self.y, 0.5)
+        idx = rdp_index(self.x, self.y, 0.5)
 
+        assert_array_equal(idx, np.array([0, 2, 3]))
         assert_array_equal(x_new, np.array([0.0, 3, 5]))
         assert_array_equal(y_new, np.array([2.0, 0, 1]))
 
@@ -90,7 +92,7 @@ class TestErrorHandling:
         with pytest.raises(ValueError, match="Inputs have different lengths"):
             rdp(self.x[1:2], self.x, 1)
 
-    @pytest.mark.parametrize("x", ["foo"])
+    @pytest.mark.parametrize("x", ["foo", "bar"])
     def test_error_when_input_is_not_numpy_like(self, x):
         with pytest.raises(TypeError, match="incompatible function arguments"):
             rdp(x, self.x, 1)

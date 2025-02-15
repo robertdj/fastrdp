@@ -1,5 +1,6 @@
 # fastrdp
 
+
 <a href="https://pypi.org/project/fastrdp/">
 <img src="https://img.shields.io/pypi/v/fastrdp" alt="PyPI Latest Release"/>
 </a>
@@ -11,9 +12,13 @@ for reducing the number of points in a curve.
 
 # Example
 
-There is a single function in the *fastrdp* package. Here is an example
-from the Wikipedia page linked to above with a description of the
-algorithm. The original line is black and the approximating line is red.
+There are two functions in the *fastrdp* package: `rdp` that returns the
+points by the RDP algorithm and `rdp_index` that returns the indices of
+the returned points in the input.
+
+Here is an example from the Wikipedia page linked to above with a
+description of the algorithm. The original line is black and the
+approximating line is red.
 
 ``` python
 import matplotlib.pyplot as plt
@@ -43,7 +48,7 @@ from timeit import timeit
 timeit(lambda: fastrdp.rdp(x, y, 0.1), number=10_000)
 ```
 
-    0.9715354799991474
+    0.6883870188612491
 
 The pure Python implementation in the [*rdp*
 package](https://pypi.org/project/rdp) takes more than a second to
@@ -55,7 +60,7 @@ z = np.column_stack((x, y))
 timeit(lambda: rdp.rdp(z, epsilon=0.1), number=1)
 ```
 
-    1.636681150062941
+    0.8460499208886176
 
 To illustrate how *fastrdp* scales consider the following graph that
 shows execution time for an increasing number of random input points.
