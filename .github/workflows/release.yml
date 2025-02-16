@@ -129,6 +129,7 @@ jobs:
         with:
           pattern: wheel-*
           path: dist
+          merge-multiple: true
 
       - name: Publish to PyPI
         if: inputs.dry-run == false
