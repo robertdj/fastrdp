@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fastrdp"
-version = "0.2.0"
+version = "0.2.1"
 description = "Implementation of the Ramer-Douglas-Peucker algorithm"
 readme = "README.md"
 authors = [{ name = "Robert Dahl Jacobsen" }]
@@ -21,3 +21,10 @@ docs = ["jupyter", "matplotlib", "rdp"]
 
 [project.urls]
 Homepage = "https://github.com/robertdj/fastrdp"
+
+[tool.setuptools]
+packages = ["fastrdp"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"*" = ["fastrdp.pyi"]
