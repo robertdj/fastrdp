@@ -21,10 +21,3 @@ docs = ["jupyter", "matplotlib", "rdp"]
 
 [project.urls]
 Homepage = "https://github.com/robertdj/fastrdp"
-
-[tool.setuptools]
-packages = ["fastrdp"]
-include-package-data = true
-
-[tool.setuptools.package-data]
-"*" = ["fastrdp.pyi"]
