@@ -73,19 +73,18 @@ std::pair<py::array_t<double>, py::array_t<double>> rdp_wrapper(py::array_t<doub
     return std::make_pair(py::array(xOut.size(), xOut.data()), py::array(yOut.size(), yOut.data()));
 }
 
-PYBIND11_MODULE(fastrdp, m)
+PYBIND11_MODULE(_fastrdp, m)
 {
     m.def("rdp_index", &rdp_index_wrapper, R"mydelimiter(
         rdp_index(x, y, epsilon)
 
-        The input is a curve sampled at the points `(x[i], y[i])` from NumPy vectors `x` and `y`.
-        Select a subset of the points as a coarser approximation using the Ramer-Douglas-Peucker algorithm with tolerance `epsilon`.
-        Returns the indices of the elements in `x` and `y` that are kept.
+    The input is a curve sampled at the points `(x[i], y[i])` from `x` and `y`.
+    Returns the indices of the elements that are kept in an approximation using the Ramer-Douglas-Peucker algorithm with tolerance `epsilon`.
 )mydelimiter");
     m.def("rdp", &rdp_wrapper, R"mydelimiter(
         rdp(x, y, epsilon)
 
-        The input is a curve sampled at the points `(x[i], y[i])` from NumPy vectors `x` and `y`.
-        Select a subset of the points as a coarser approximation using the Ramer-Douglas-Peucker algorithm with tolerance `epsilon`.
+    The input is a curve sampled at the points `(x[i], y[i])` from `x` and `y`.
+    Select a subset of the points as a coarser approximation using the Ramer-Douglas-Peucker algorithm with tolerance `epsilon`.
 )mydelimiter");
 }
