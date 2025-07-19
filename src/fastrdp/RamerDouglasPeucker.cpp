@@ -74,6 +74,27 @@ struct Point3D
     Point3D operator+(const Vec3D &v) const { return Point3D{x + v.x, y + v.y, z + v.z}; }
 };
 
+template <std::size_t N>
+struct Point {
+    std::array<double, N> data{};
+
+    Point() { data.fill(0); }
+    Point(std::initializer_list<double> vals) {
+        std::copy(vals.begin(), vals.end(), data.begin());
+    }
+
+    Vec<N> operator-(const Point &other) const {
+        Vec<N> result;
+        for (std::size_t i = 0; i < N; ++i) result.data[i] = data[i] - other.data[i];
+        return result;
+    }
+    Point operator+(const Vec<N> &v) const {
+        Point result;
+        for (std::size_t i = 0; i < N; ++i) result.data[i] = data[i] + v.data[i];
+        return result;
+    }
+};
+
 
 // Find the point furthest away from reference (points[startIndex] == points[endIndex])
 std::pair<double, std::size_t> findMostDistantPoint(const std::vector<Point3D> &points,
