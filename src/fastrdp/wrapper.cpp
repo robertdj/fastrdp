@@ -131,18 +131,50 @@ py::tuple rdp_wrapper(const std::array<py::array_t<double>, N> &arrays, double e
     return result;
 }
 
+
+py::array_t<std::size_t> rdp_index_wrapper_2d(py::array_t<double> x, py::array_t<double> y, double epsilon) {
+    return rdp_index_wrapper<2>({x, y}, epsilon);
+}
+
+py::array_t<std::size_t> rdp_index_wrapper_3d(py::array_t<double> x, py::array_t<double> y, py::array_t<double> z, double epsilon) {
+    return rdp_index_wrapper<3>({x, y, z}, epsilon);
+}
+
+py::tuple rdp_wrapper_2d(py::array_t<double> x, py::array_t<double> y, double epsilon) {
+    return rdp_wrapper<2>({x, y}, epsilon);
+}
+
+py::tuple rdp_wrapper_3d(py::array_t<double> x, py::array_t<double> y, py::array_t<double> z, double epsilon) {
+    return rdp_wrapper<3>({x, y, z}, epsilon);
+}
+
 PYBIND11_MODULE(_fastrdp, m)
 {
-    m.def("rdp_index", &rdp_index_wrapper, R"mydelimiter(
-        rdp_index(x, y, z, epsilon)
+    m.def("rdp_index", &rdp_index_wrapper_2d, R"mydelimiter(
+        rdp_index(x, y, epsilon)
 
     The input is a curve sampled at the points `(x[i], y[i])` from `x` and `y`.
     Returns the indices of the elements that are kept in an approximation using the Ramer-Douglas-Peucker algorithm with tolerance `epsilon`.
 )mydelimiter");
-    m.def("rdp", &rdp_wrapper, R"mydelimiter(
+
+    m.def("rdp_index", &rdp_index_wrapper_3d, R"mydelimiter(
+        rdp_index(x, y, z, epsilon)
+
+    The input is a curve sampled at the points `(x[i], y[i])` from `x`, `y`, and `z`.
+    Returns the indices of the elements that are kept in an approximation using the Ramer-Douglas-Peucker algorithm with tolerance `epsilon`.
+)mydelimiter");
+
+    m.def("rdp", &rdp_wrapper_2d, R"mydelimiter(
+        rdp(x, y, epsilon)
+
+    The input is a curve sampled at the points `(x[i], y[i])` from `x` and `y`.
+    Select a subset of the points as a coarser approximation using the Ramer-Douglas-Peucker algorithm with tolerance `epsilon`.
+)mydelimiter");
+
+    m.def("rdp", &rdp_wrapper_3d, R"mydelimiter(
         rdp(x, y, z, epsilon)
 
-    The input is a curve sampled at the points `(x[i], y[i], z[i])` from `x` and `y` and `z`.
+    The input is a curve sampled at the points `(x[i], y[i], z[i])` from `x`, `y` and `z`.
     Select a subset of the points as a coarser approximation using the Ramer-Douglas-Peucker algorithm with tolerance `epsilon`.
 )mydelimiter");
 }
