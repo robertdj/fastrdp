@@ -225,8 +225,8 @@ std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<Po
     return std::make_pair(maxDistanceSquared, maxDistanceIndex);
 }
 
-
-void RamerDouglasPeucker(const std::vector<Point3D> &points, std::size_t startIndex,
+template <std::size_t N>
+void RamerDouglasPeucker(const std::vector<Point<N>> &points, std::size_t startIndex,
                          std::size_t endIndex, double epsilonSquared,
                          std::vector<std::size_t> &indicesToKeep)
 {
