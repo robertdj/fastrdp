@@ -183,7 +183,8 @@ std::pair<double, std::size_t> findMostDistantPoint(const std::vector<Point<N>> 
 // Find the point with the maximum distance from line between start and end.
 // Rearranging this formula to avoid recomputing constants:
 // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
-std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<Point3D> &points,
+template <std::size_t N>
+std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<Point<N>> &points,
                                                             std::size_t startIndex,
                                                             std::size_t endIndex)
 {
@@ -191,7 +192,7 @@ std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<Po
     assert(endIndex < points.size() && "End index is larger than the number of points");
     assert(points.size() >= 2 && "At least two points needed");
 
-    Vec3D lineDiff = points[endIndex] - points[startIndex];
+    Vec<N> lineDiff = points[endIndex] - points[startIndex];
     double lineLengthSquared = lineDiff.lengthSquared();
 
     if (lineLengthSquared == 0)
@@ -207,17 +208,18 @@ std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<Po
     for (std::size_t i = startIndex + 1; i != endIndex; ++i)
     {
         // double unscaledDistance = offset - points[i].y * lineDiff.x + points[i].x * lineDiff.y; // 2D
-        Vec3D diff = points[i] - points[startIndex];
-        double unscaledDistanceSquared = diff.cross(lineDiff).lengthSquared();
-
-        if (unscaledDistanceSquared > maxDistanceSquared)
+        // Vec<N> diff = points[i] - points[startIndex];
+        // double unscaledDistanceSquared = diff.cross(lineDiff).lengthSquared();
+        double distanceSquared = point2LineDistanceSquared(points[i], points[startIndex],  points[endIndex]
+        ) 
+        if (distanceSquared > maxDistanceSquared)
         {
             maxDistanceIndex = i;
-            maxDistanceSquared = unscaledDistanceSquared;
+            maxDistanceSquared = distanceSquared;
         }
     }
 
-    maxDistanceSquared /= lineLengthSquared;
+    // maxDistanceSquared /= lineLengthSquared;
 
     // Constructor is faster than initialization
     return std::make_pair(maxDistanceSquared, maxDistanceIndex);
