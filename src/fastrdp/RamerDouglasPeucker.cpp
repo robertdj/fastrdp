@@ -4,19 +4,19 @@
 
 
 namespace rdp {
-struct Vec3
+struct Vec3D
 {
     double x, y, z;
 
-    Vec3() : x(0), y(0), z(0) {}
-    Vec3(double x_, double y_, double z_) : x(x_), y(y_), z(z_) {}
+    Vec3D() : x(0), y(0), z(0) {}
+    Vec3D(double x_, double y_, double z_) : x(x_), y(y_), z(z_) {}
 
-    Vec3 operator+(const Vec3 &other) const { return {x + other.x, y + other.y, z + other.z}; }
-    Vec3 operator-(const Vec3 &other) const { return {x - other.x, y - other.y, z - other.z}; }
-    Vec3 operator*(double s) const { return {x * s, y * s, z * s}; }
+    Vec3D operator+(const Vec3D &other) const { return {x + other.x, y + other.y, z + other.z}; }
+    Vec3D operator-(const Vec3D &other) const { return {x - other.x, y - other.y, z - other.z}; }
+    Vec3D operator*(double s) const { return {x * s, y * s, z * s}; }
 
-    double dot(const Vec3 &other) const { return x * other.x + y * other.y + z * other.z; }
-    Vec3 cross(const Vec3 &other) const {
+    double dot(const Vec3D &other) const { return x * other.x + y * other.y + z * other.z; }
+    Vec3D cross(const Vec3D &other) const {
         return {y * other.z - z * other.y,
                 z * other.x - x * other.z,
                 x * other.y - y * other.x};
@@ -33,8 +33,8 @@ struct Point3D
     Point3D() : x(0), y(0), z(0) {}
     Point3D(double x_, double y_, double z_) : x(x_), y(y_), z(z_) {}
 
-    Vec3 operator-(const Point3D &other) const { return Vec3{x - other.x, y - other.y, z - other.z}; }
-    Point3D operator+(const Vec3 &v) const { return Point3D{x + v.x, y + v.y, z + v.z}; }
+    Vec3D operator-(const Point3D &other) const { return Vec3D{x - other.x, y - other.y, z - other.z}; }
+    Point3D operator+(const Vec3D &v) const { return Point3D{x + v.x, y + v.y, z + v.z}; }
 };
 
 
@@ -77,7 +77,7 @@ std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<Po
     assert(endIndex < points.size() && "End index is larger than the number of points");
     assert(points.size() >= 2 && "At least two points needed");
 
-    Vec3 lineDiff = points[endIndex] - points[startIndex];
+    Vec3D lineDiff = points[endIndex] - points[startIndex];
     double lineLengthSquared = lineDiff.lengthSquared();
 
     if (lineLengthSquared == 0)
@@ -93,7 +93,7 @@ std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<Po
     for (std::size_t i = startIndex + 1; i != endIndex; ++i)
     {
         // double unscaledDistance = offset - points[i].y * lineDiff.x + points[i].x * lineDiff.y; // 2D
-        Vec3 diff = points[i] - points[startIndex];
+        Vec3D diff = points[i] - points[startIndex];
         double unscaledDistanceSquared = diff.cross(lineDiff).lengthSquared();
 
         if (unscaledDistanceSquared > maxDistanceSquared)
