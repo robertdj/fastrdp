@@ -201,16 +201,11 @@ std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<Po
         return findMostDistantPoint(points, startIndex, endIndex);
     }
 
-    // double offset = points[startIndex].y * lineDiff.x - points[startIndex].x * lineDiff.y; // 2D
-
     double maxDistanceSquared = 0.0;
     std::size_t maxDistanceIndex = startIndex;
 
     for (std::size_t i = startIndex + 1; i != endIndex; ++i)
     {
-        // double unscaledDistance = offset - points[i].y * lineDiff.x + points[i].x * lineDiff.y; // 2D
-        // Vec<N> diff = points[i] - points[startIndex];
-        // double unscaledDistanceSquared = diff.cross(lineDiff).lengthSquared();
         double distanceSquared = point2LineDistanceSquared(points[i], points[startIndex],  points[endIndex]
         );
         if (distanceSquared > maxDistanceSquared)
@@ -219,8 +214,6 @@ std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<Po
             maxDistanceSquared = distanceSquared;
         }
     }
-
-    // maxDistanceSquared /= lineLengthSquared;
 
     // Constructor is faster than initialization
     return std::make_pair(maxDistanceSquared, maxDistanceIndex);
