@@ -3,7 +3,7 @@ from typing import Sequence
 import numpy as np
 import numpy.typing as npt
 
-def rdp(x: Sequence[float], y: Sequence[float], epsilon: float) -> tuple[npt.NDArray[np.floating], npt.NDArray[np.floating]]:
+def rdp(x: Sequence[float], y: Sequence[float], z: Sequence[float], epsilon: float) -> tuple[npt.NDArray[np.floating], npt.NDArray[np.floating], npt.NDArray[np.floating]]:
     """
     rdp_index(x, y, epsilon)
 
@@ -12,7 +12,7 @@ def rdp(x: Sequence[float], y: Sequence[float], epsilon: float) -> tuple[npt.NDA
     """
     ...
 
-def rdp_index(x: Sequence[float], y: Sequence[float], epsilon: float) -> npt.NDArray[np.int_]:
+def rdp_index(x: Sequence[float], y: Sequence[float], y: Sequence[float], epsilon: float) -> npt.NDArray[np.int_]:
     """
     rdp_index(x, y, epsilon)
 

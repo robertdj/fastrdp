@@ -4,41 +4,56 @@
 
 
 namespace rdp {
-struct Point2D
+struct Vec3
 {
-    double x;
-    double y;
+    double x, y, z;
+
+    Vec3() : x(0), y(0), z(0) {}
+    Vec3(double x_, double y_, double z_) : x(x_), y(y_), z(z_) {}
+
+    Vec3 operator+(const Vec3 &other) const { return {x + other.x, y + other.y, z + other.z}; }
+    Vec3 operator-(const Vec3 &other) const { return {x - other.x, y - other.y, z - other.z}; }
+    Vec3 operator*(double s) const { return {x * s, y * s, z * s}; }
+
+    double dot(const Vec3 &other) const { return x * other.x + y * other.y + z * other.z; }
+    Vec3 cross(const Vec3 &other) const {
+        return {y * other.z - z * other.y,
+                z * other.x - x * other.z,
+                x * other.y - y * other.x};
+    }
+
+    double length() const { return std::sqrt(x * x + y * y + z * z); }
+    double lengthSquared() const { return x * x + y * y + z * z; }
+};
+
+struct Point3D
+{
+    double x, y, z;
+
+    Point3D() : x(0), y(0), z(0) {}
+    Point3D(double x_, double y_, double z_) : x(x_), y(y_), z(z_) {}
+
+    Vec3 operator-(const Point3D &other) const { return Vec3{x - other.x, y - other.y, z - other.z}; }
+    Point3D operator+(const Vec3 &v) const { return Point3D{x + v.x, y + v.y, z + v.z}; }
 };
 
 
-Point2D operator-(Point2D a, Point2D b)
-{
-    return {a.x - b.x, a.y - b.y};
-}
-
-
-double abs2(Point2D p)
-{
-    return p.x * p.x + p.y * p.y;
-}
-
-
 // Find the point furthest away from reference (points[startIndex] == points[endIndex])
-std::pair<double, std::size_t> findMostDistantPoint(const std::vector<Point2D> &points,
+std::pair<double, std::size_t> findMostDistantPoint(const std::vector<Point3D> &points,
                                                     std::size_t startIndex, std::size_t endIndex)
 {
     assert(startIndex < endIndex && "Start index must be smaller than end index");
     assert(endIndex < points.size() && "End index is larger than the number of points");
     assert(points.size() >= 2 && "At least two points needed");
 
-    assert(abs2(points[startIndex] - points[endIndex]) == 0 && "Start and end point must be equal");
+    assert((points[startIndex] - points[endIndex]).lengthSquared() == 0 && "Start and end point must be equal");
 
     double maxDistanceSquared = 0.0;
     std::size_t maxDistanceIndex = startIndex;
 
     for (std::size_t i = startIndex + 1; i != endIndex; ++i)
     {
-        double distanceSquared = abs2(points[i] - points[startIndex]);
+        double distanceSquared = (points[i] - points[startIndex]).lengthSquared();
 
         if (distanceSquared > maxDistanceSquared)
         {
@@ -54,7 +69,7 @@ std::pair<double, std::size_t> findMostDistantPoint(const std::vector<Point2D> &
 // Find the point with the maximum distance from line between start and end.
 // Rearranging this formula to avoid recomputing constants:
 // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
-std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<Point2D> &points,
+std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<Point3D> &points,
                                                             std::size_t startIndex,
                                                             std::size_t endIndex)
 {
@@ -62,23 +77,24 @@ std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<Po
     assert(endIndex < points.size() && "End index is larger than the number of points");
     assert(points.size() >= 2 && "At least two points needed");
 
-    Point2D lineDiff = points[endIndex] - points[startIndex];
-    double lineLengthSquared = abs2(lineDiff);
+    Vec3 lineDiff = points[endIndex] - points[startIndex];
+    double lineLengthSquared = lineDiff.lengthSquared();
 
     if (lineLengthSquared == 0)
     {
         return findMostDistantPoint(points, startIndex, endIndex);
     }
 
-    double offset = points[startIndex].y * lineDiff.x - points[startIndex].x * lineDiff.y;
+    // double offset = points[startIndex].y * lineDiff.x - points[startIndex].x * lineDiff.y; // 2D
 
     double maxDistanceSquared = 0.0;
     std::size_t maxDistanceIndex = startIndex;
 
     for (std::size_t i = startIndex + 1; i != endIndex; ++i)
     {
-        double unscaledDistance = offset - points[i].y * lineDiff.x + points[i].x * lineDiff.y;
-        double unscaledDistanceSquared = unscaledDistance * unscaledDistance;
+        // double unscaledDistance = offset - points[i].y * lineDiff.x + points[i].x * lineDiff.y; // 2D
+        Vec3 diff = points[i] - points[startIndex];
+        double unscaledDistanceSquared = diff.cross(lineDiff).lengthSquared();
 
         if (unscaledDistanceSquared > maxDistanceSquared)
         {
@@ -94,7 +110,7 @@ std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<Po
 }
 
 
-void RamerDouglasPeucker(const std::vector<Point2D> &points, std::size_t startIndex,
+void RamerDouglasPeucker(const std::vector<Point3D> &points, std::size_t startIndex,
                          std::size_t endIndex, double epsilonSquared,
                          std::vector<std::size_t> &indicesToKeep)
 {
