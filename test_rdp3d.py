@@ -25,7 +25,7 @@ x_new, y_new, z_new = fastrdp.rdp(x, y, z, 10)  # Adjust epsilon as needed
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 ax.plot(x, y, z, color='black', linewidth=2.0, label='Original spiral')
-ax.plot(x_new, y_new, z_new, linestyle='dashed', color='red', label='Simplified spiral')
+ax.plot(x_new, y_new, z_new, '.--', color='red', label='Simplified spiral')
 
 ax.legend()
 plt.show()
