@@ -5,28 +5,6 @@
 #include <array>
 
 namespace rdp {
-struct Vec3D
-{
-    double x, y, z;
-
-    Vec3D() : x(0), y(0), z(0) {}
-    Vec3D(double x_, double y_, double z_) : x(x_), y(y_), z(z_) {}
-
-    Vec3D operator+(const Vec3D &other) const { return {x + other.x, y + other.y, z + other.z}; }
-    Vec3D operator-(const Vec3D &other) const { return {x - other.x, y - other.y, z - other.z}; }
-    Vec3D operator*(double s) const { return {x * s, y * s, z * s}; }
-
-    double dot(const Vec3D &other) const { return x * other.x + y * other.y + z * other.z; }
-    Vec3D cross(const Vec3D &other) const {
-        return {y * other.z - z * other.y,
-                z * other.x - x * other.z,
-                x * other.y - y * other.x};
-    }
-
-    double length() const { return std::sqrt(x * x + y * y + z * z); }
-    double lengthSquared() const { return x * x + y * y + z * z; }
-};
-
 template <std::size_t N>
 struct Vec {
     std::array<double, N> data{};
@@ -71,17 +49,6 @@ inline Vec<3> cross(const Vec<3> &a, const Vec<3> &b) {
         a.data[0] * b.data[1] - a.data[1] * b.data[0]
     };
 }
-
-struct Point3D
-{
-    double x, y, z;
-
-    Point3D() : x(0), y(0), z(0) {}
-    Point3D(double x_, double y_, double z_) : x(x_), y(y_), z(z_) {}
-
-    Vec3D operator-(const Point3D &other) const { return Vec3D{x - other.x, y - other.y, z - other.z}; }
-    Point3D operator+(const Vec3D &v) const { return Point3D{x + v.x, y + v.y, z + v.z}; }
-};
 
 template <std::size_t N>
 struct Point {
