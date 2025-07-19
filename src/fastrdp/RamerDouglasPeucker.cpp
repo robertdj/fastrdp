@@ -103,6 +103,53 @@ struct Point {
     }
 };
 
+template <std::size_t N>
+double point2LineDistanceSquared(const Point<N> &p, const Point<N> &a, const Point<N> &b) {
+    // Compute the squared distance between p and the line defined by b - a
+
+    // Create the line
+    Vec<N> ab = b - a;
+
+    // If a == b --> dist = (p - a)**2
+    if (ab.lengthSquared() < 1.0e-14)
+        return (p - a).lengthSquared();
+
+    if constexpr (N == 2) { // 2D
+        // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
+        // Some linear algebra
+        // The point
+        // x0 = p.data[0]
+        // y0 = p.data[1]
+        // a
+        // x1 = a.data[0]
+        // y1 = a.data[1]
+        // b
+        // x2 = b.data[0]
+        // y2 = b.data[1]
+        // The line
+        // x2 - x1 = ab.data[0]
+        // y2 - y1 = ab.data[1]
+        // Therefore,
+        // ((y2 - y1) * x0 + (x2 - x1) * y0 + x2 * y1 - y2 * x1)
+        // can be written as
+        // (ab.data[1] * p.data[0] + ab.data[0] * p.data[1] + b.data[0] * a.data[1] - b.data[1] * a.data[0])
+        // and
+        // sqrt((y2 - y1)**2 + (x2 - x1)**2)**2
+        // can be written as
+        // ab.lengthSquared()
+
+        // Calculate the numerator
+        distance = (ab.data[1] * p.data[0] + ab.data[0] * p.data[1] + b.data[0] * a.data[1] - b.data[1] * a.data[0])
+
+        // Return the square of the distance
+        return (distance * distance) / ab.lengthSquared();
+    } else if constexpr (N == 3) { // 3D
+        // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Another_vector_formulation
+        return cross(p - a, ab).lengthSquared() / ab.lengthSquared();
+    } else {
+        static_assert(N == 2 || N == 3, "Only 2D and 3D supported.");
+    }
+}
 
 // Find the point furthest away from reference (points[startIndex] == points[endIndex])
 std::pair<double, std::size_t> findMostDistantPoint(const std::vector<Point3D> &points,
