@@ -18,13 +18,15 @@ rdp_index(const std::array<py::array_t<double>, N> &arrays, double epsilon)
         buf[k] = arrays[k].request();
 
     // Make sure the input arrays have the correct shape and data type
-    auto nPoints = buf[0].size;
+    std::size_t nPoints = buf[0].size;
     for (std::size_t i = 0; i < N; ++i)
+    {
         if (buf[i].ndim != 1)
             throw std::invalid_argument("Inputs should be vectors");
 
-        if (i > 0 && bufs[i].size != bufs[0].size)
+        if (i > 0 && buf[i].size != buf[0].size)
             throw std::length_error("Inputs have different lengths");
+    }
     if (nPoints <= 2)
     {
         std::vector<size_t> trivial_indices(nPoints);
@@ -32,16 +34,22 @@ rdp_index(const std::array<py::array_t<double>, N> &arrays, double epsilon)
         return trivial_indices;
     }
 
-    // Prepare input for RDP function
-    std::vector<rdp::Point<N>> points;
-    points.reserve(nPoints);
+
+    std::vector<rdp::Point<N>> points(nPoints);
     for (std::size_t i = 0; i < nPoints; ++i)
-    {
-        rdp::Point<N> p;
         for (std::size_t k = 0; k < N; ++k)
-            p.data[k] = static_cast<double *>(buf[k].ptr)[i];
-        points.push_back(p);
-    }
+            points[i].data[k] = static_cast<const double*>(buf[k].ptr)[i];
+    
+    // // Prepare input for RDP function
+    // std::vector<rdp::Point<N>> points;
+    // points.reserve(nPoints);
+    // for (std::size_t i = 0; i < nPoints; ++i)
+    // {
+    //     rdp::Point<N> p;
+    //     for (std::size_t k = 0; k < N; ++k)
+    //         p.data[k] = static_cast<double *>(buf[k].ptr)[i];
+    //     points.push_back(p);
+    // }
 
     std::vector<size_t> indicesToKeep;
     indicesToKeep.reserve(nPoints);
