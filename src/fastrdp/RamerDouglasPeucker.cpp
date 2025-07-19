@@ -1,7 +1,7 @@
 #include <cassert>
 #include <tuple>
 #include <vector>
-
+#include <array>
 
 namespace rdp {
 struct Vec3D
