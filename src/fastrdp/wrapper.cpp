@@ -64,9 +64,15 @@ rdp_index(const std::array<py::array_t<double>, N> &arrays, double epsilon)
     return indicesToKeep;
 }
 
-py::array_t<size_t> rdp_index_wrapper(py::array_t<double> array1, py::array_t<double> array2, py::array_t<double> array3, double epsilon)
+
+
+// py::array_t<size_t> rdp_index_wrapper(py::array_t<double> array1, py::array_t<double> array2, py::array_t<double> array3, double epsilon)
+// {
+template <std::size_t N>
+py::array_t<std::size_t>
+rdp_index_wrapper(const std::array<py::array_t<double>, N> &arrays, double epsilon)
 {
-    std::vector<size_t> indicesToKeep = rdp_index(array1, array2, array3, epsilon);
+    std::vector<size_t> indicesToKeep = rdp_index<N>(arrays, epsilon);
     return py::array_t<size_t>(indicesToKeep.size(), indicesToKeep.data());
 }
 
