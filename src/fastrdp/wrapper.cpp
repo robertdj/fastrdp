@@ -76,35 +76,60 @@ rdp_index_wrapper(const std::array<py::array_t<double>, N> &arrays, double epsil
     return py::array_t<size_t>(indicesToKeep.size(), indicesToKeep.data());
 }
 
-std::tuple<py::array_t<double>, py::array_t<double>, py::array_t<double>> rdp_wrapper(py::array_t<double> array1, py::array_t<double> array2, py::array_t<double> array3, double epsilon)
+
+
+// std::tuple<py::array_t<double>, py::array_t<double>, py::array_t<double>> rdp_wrapper(py::array_t<double> array1, py::array_t<double> array2, py::array_t<double> array3, double epsilon)
+// {
+template <std::size_t N>
+py::tuple rdp_wrapper(const std::array<py::array_t<double>, N> &arrays, double epsilon)
 {
-    std::vector<size_t> indicesToKeep = rdp_index(array1, array2, array3, epsilon);
+    // std::vector<size_t> indicesToKeep = rdp_index(array1, array2, array3, epsilon);
+    std::vector<size_t> indicesToKeep = rdp_index_impl<N>(arrays, epsilon);
 
-    py::buffer_info buf1 = array1.request(), buf2 = array2.request(), buf3 = array3.request();
-    std::vector<double> vec1((double *)buf1.ptr, (double *)buf1.ptr + buf1.size);
-    std::vector<double> vec2((double *)buf2.ptr, (double *)buf2.ptr + buf2.size);
-    std::vector<double> vec3((double *)buf3.ptr, (double *)buf3.ptr + buf3.size);
-
+    // py::buffer_info buf1 = array1.request(), buf2 = array2.request(), buf3 = array3.request();
+    std::array<py::buffer_info, N> buf;
+    for (std::size_t k = 0; k < N; ++k)
+        buf[k] = arrays[k].request();
+    
+    // std::vector<double> vec1((double *)buf1.ptr, (double *)buf1.ptr + buf1.size);
+    // std::vector<double> vec2((double *)buf2.ptr, (double *)buf2.ptr + buf2.size);
+    // std::vector<double> vec3((double *)buf3.ptr, (double *)buf3.ptr + buf3.size);
     size_t nIndices = indicesToKeep.size();
-    std::vector<double> xOut(nIndices);
-    std::vector<double> yOut(nIndices);
-    std::vector<double> zOut(nIndices);
+    std::array<std::vector<double>, N> coordsOut;
+    for (size_t k = 0; k < N; ++k)
+        coordsOut[k].resize(nIndices);
 
+    // std::vector<double> xOut(nIndices);
+    // std::vector<double> yOut(nIndices);
+    // std::vector<double> zOut(nIndices);
+
+    // Output arrays
     for (size_t i = 0; i < nIndices; ++i)
     {
-        size_t index = indicesToKeep[i];
-        xOut[i] = vec1[index];
-        yOut[i] = vec2[index];
-        zOut[i] = vec3[index];
+        size_t idx = indicesToKeep[i];
+        for (size_t k = 0; k < N; ++k)
+            coordsOut[k][i] = static_cast<double *>(buffers[k].ptr)[idx];
     }
 
-    // return std::make_pair(py::array(xOut.size(), xOut.data()), py::array(yOut.size(), yOut.data()));
-    return std::make_tuple(
-    py::array(xOut.size(), xOut.data()),
-    py::array(yOut.size(), yOut.data()),
-    py::array(zOut.size(), zOut.data())
-    );
+    // for (size_t i = 0; i < nIndices; ++i)
+    // {
+    //     size_t index = indicesToKeep[i];
+    //     xOut[i] = vec1[index];
+    //     yOut[i] = vec2[index];
+    //     zOut[i] = vec3[index];
+    // }
 
+    // return std::make_pair(py::array(xOut.size(), xOut.data()), py::array(yOut.size(), yOut.data()));
+    // return std::make_tuple(
+    // py::array(xOut.size(), xOut.data()),
+    // py::array(yOut.size(), yOut.data()),
+    // py::array(zOut.size(), zOut.data())
+    // );
+    py::tuple result(N);
+    for (size_t k = 0; k < N; ++k)
+        result[k] = py::array(coordsOut[k].size(), coordsOut[k].data());
+
+    return result;
 }
 
 PYBIND11_MODULE(_fastrdp, m)
