@@ -26,6 +26,43 @@ struct Vec3D
     double lengthSquared() const { return x * x + y * y + z * z; }
 };
 
+template <std::size_t N>
+struct Vec {
+    std::array<double, N> data{};
+
+    Vec() { data.fill(0); }
+    Vec(std::initializer_list<double> vals) {
+        std::copy(vals.begin(), vals.end(), data.begin());
+    }
+
+    Vec operator+(const Vec &other) const {
+        Vec result;
+        for (std::size_t i = 0; i < N; ++i) result.data[i] = data[i] + other.data[i];
+        return result;
+    }
+
+    Vec operator-(const Vec &other) const {
+        Vec result;
+        for (std::size_t i = 0; i < N; ++i) result.data[i] = data[i] - other.data[i];
+        return result;
+    }
+
+    Vec operator*(double s) const {
+        Vec result;
+        for (std::size_t i = 0; i < N; ++i) result.data[i] = data[i] * s;
+        return result;
+    }
+
+    double dot(const Vec &other) const {
+        double sum = 0;
+        for (std::size_t i = 0; i < N; ++i) sum += data[i] * other.data[i];
+        return sum;
+    }
+
+    double lengthSquared() const { return dot(*this); }
+    double length() const { return std::sqrt(lengthSquared()); }
+};
+
 struct Point3D
 {
     double x, y, z;
