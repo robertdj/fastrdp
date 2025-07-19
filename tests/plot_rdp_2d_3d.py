@@ -11,6 +11,7 @@ x_new, y_new = fastrdp.rdp(x, y, 0.06)
 fig, ax = plt.subplots()
 ax.plot(x, y, color='black', linewidth=2.0)
 ax.plot(x_new, y_new, linestyle='dashed', color='red')
+# plt.savefig('README_files/figure-commonmark/cell-2-output-1.png')
 plt.show()
 
 # 3D spiral
@@ -27,6 +28,6 @@ ax.plot(x, y, z, color='black', linewidth=2.0)
 ax.plot(x_new, y_new, z_new, linestyle='dashed', color='red')
 
 plt.tight_layout()
-plt.savefig('README_files/figure-commonmark/cell-3-output-1.png')
+# plt.savefig('README_files/figure-commonmark/cell-3-output-1.png')
 # ax.legend()
-# plt.show()
+plt.show()
