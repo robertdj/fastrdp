@@ -19,12 +19,14 @@ x = t * np.cos(t)
 y = t * np.sin(t)
 z = t
 
-x_new, y_new, z_new = fastrdp.rdp(x, y, z, 0.06)  # Adjust epsilon as needed
+x_new, y_new, z_new = fastrdp.rdp(x, y, z, 1.0)
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-ax.plot(x, y, z, color='black', linewidth=2.0, label='Original spiral')
-ax.plot(x_new, y_new, z_new, '.--', color='red', label='Simplified spiral')
+ax.plot(x, y, z, color='black', linewidth=2.0)
+ax.plot(x_new, y_new, z_new, linestyle='dashed', color='red')
 
-ax.legend()
-plt.show()
+plt.tight_layout()
+plt.savefig('README_files/figure-commonmark/cell-3-output-1.png')
+# ax.legend()
+# plt.show()
