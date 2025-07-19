@@ -152,7 +152,8 @@ double point2LineDistanceSquared(const Point<N> &p, const Point<N> &a, const Poi
 }
 
 // Find the point furthest away from reference (points[startIndex] == points[endIndex])
-std::pair<double, std::size_t> findMostDistantPoint(const std::vector<Point3D> &points,
+template <std::size_t N>
+std::pair<double, std::size_t> findMostDistantPoint(const std::vector<Point<N>> &points,
                                                     std::size_t startIndex, std::size_t endIndex)
 {
     assert(startIndex < endIndex && "Start index must be smaller than end index");
