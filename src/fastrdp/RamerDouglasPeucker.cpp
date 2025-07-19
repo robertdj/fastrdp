@@ -256,4 +256,14 @@ void RamerDouglasPeucker(const std::vector<Point<N>> &points, std::size_t startI
         indicesToKeep.push_back(endIndex);
     }
 }
+
+template void RamerDouglasPeucker<2>(const std::vector<Point<2>>&,
+                                     std::size_t, std::size_t,
+                                     double, std::vector<std::size_t>&);
+
+template void RamerDouglasPeucker<3>(const std::vector<Point<3>>&,
+                                     std::size_t, std::size_t,
+                                     double, std::vector<std::size_t>&);
+
+
 } // end namespace rdp
