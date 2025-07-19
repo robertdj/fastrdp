@@ -63,6 +63,14 @@ struct Vec {
     double length() const { return std::sqrt(lengthSquared()); }
 };
 
+inline Vec<3> cross(const Vec<3> &a, const Vec<3> &b) {
+    return {
+        a.data[1] * b.data[2] - a.data[2] * b.data[1],
+        a.data[2] * b.data[0] - a.data[0] * b.data[2],
+        a.data[0] * b.data[1] - a.data[1] * b.data[0]
+    };
+}
+
 struct Point3D
 {
     double x, y, z;
