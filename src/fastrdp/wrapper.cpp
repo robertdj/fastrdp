@@ -5,20 +5,30 @@
 
 namespace py = pybind11;
 
-std::vector<size_t> rdp_index(py::array_t<double> array1, py::array_t<double> array2, py::array_t<double> array3, double epsilon)
+// std::vector<size_t> rdp_index(py::array_t<double> array1, py::array_t<double> array2, py::array_t<double> array3, double epsilon)
+// {
+template <std::size_t N>
+std::vector<std::size_t>
+rdp_index(const std::array<py::array_t<double>, N> &arrays, double epsilon)
 {
     if (epsilon < 0.0)
         throw std::domain_error("epsilon must be non-negative");
 
-    py::buffer_info buf1 = array1.request(), buf2 = array2.request(), buf3 = array3.request();
+    // py::buffer_info buf1 = array1.request(), buf2 = array2.request(), buf3 = array3.request();
+    std::array<py::buffer_info, N> buf;
+    for (std::size_t k = 0; k < N; ++k)
+        buf[k] = arrays[k].request();
 
     // Make sure the input arrays have the correct shape and data type
     if (buf1.ndim != 1 || buf2.ndim != 1 || buf3.ndim != 1)
         throw std::domain_error("Inputs should be vectors");
 
-    auto nPoints = buf1.size;
-    if (nPoints != buf2.size || nPoints != buf3.size)
-        throw std::length_error("Inputs have different lengths");
+    auto nPoints = buf[0].size;
+    for (std::size_t i = 1; i < N; ++i)
+        if (nPoints != buf[i].size)
+            throw std::length_error("Inputs have different lengths");
+    // if (nPoints != buf2.size || nPoints != buf3.size)
+    //     throw std::length_error("Inputs have different lengths");
 
     if (nPoints <= 2)
     {
@@ -27,15 +37,23 @@ std::vector<size_t> rdp_index(py::array_t<double> array1, py::array_t<double> ar
         return trivial_indices;
     }
 
-    std::vector<double> vec1((double *)buf1.ptr, (double *)buf1.ptr + buf1.size);
-    std::vector<double> vec2((double *)buf2.ptr, (double *)buf2.ptr + buf2.size);
-    std::vector<double> vec3((double *)buf3.ptr, (double *)buf3.ptr + buf3.size);
+    // std::vector<double> vec1((double *)buf1.ptr, (double *)buf1.ptr + buf1.size);
+    // std::vector<double> vec2((double *)buf2.ptr, (double *)buf2.ptr + buf2.size);
+    // std::vector<double> vec3((double *)buf3.ptr, (double *)buf3.ptr + buf3.size);
+    std::vector<rdp::Point<N>> points;
 
     // Prepare input for RDP function
-    std::vector<rdp::Point3D> points;
+    std::vector<rdp::Point<N>> points;
     points.reserve(nPoints);
-    for (auto i = 0; i < nPoints; i++)
-        points.push_back({vec1[i], vec2[i], vec3[i]});
+    // for (auto i = 0; i < nPoints; i++)
+    //     points.push_back({vec1[i], vec2[i], vec3[i]});
+    for (std::size_t i = 0; i < nPoints; ++i)
+    {
+        rdp::Point<N> p;
+        for (std::size_t k = 0; k < N; ++k)
+            p.data[k] = static_cast<double *>(buf[k].ptr)[i];
+        points.push_back(p);
+    }
 
     std::vector<size_t> indicesToKeep;
     indicesToKeep.reserve(nPoints);
