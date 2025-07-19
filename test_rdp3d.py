@@ -20,7 +20,7 @@ x = t * np.cos(t)
 y = t * np.sin(t)
 z = t
 
-x_new, y_new, z_new = fastrdp.rdp(x, y, z, 10)  # Adjust epsilon as needed
+x_new, y_new, z_new = fastrdp.rdp(x, y, z, 0.1)  # Adjust epsilon as needed
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
