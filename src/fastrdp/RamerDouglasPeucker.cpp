@@ -140,7 +140,7 @@ double point2LineDistanceSquared(const Point<N> &p, const Point<N> &a, const Poi
         // ab.lengthSquared()
 
         // Calculate the numerator
-        distance = (ab.data[1] * p.data[0] + ab.data[0] * p.data[1] + b.data[0] * a.data[1] - b.data[1] * a.data[0])
+        double distance = (ab.data[1] * p.data[0] + ab.data[0] * p.data[1] + b.data[0] * a.data[1] - b.data[1] * a.data[0]);
 
         // Return the square of the distance
         return (distance * distance) / ab.lengthSquared();
@@ -212,7 +212,7 @@ std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<Po
         // Vec<N> diff = points[i] - points[startIndex];
         // double unscaledDistanceSquared = diff.cross(lineDiff).lengthSquared();
         double distanceSquared = point2LineDistanceSquared(points[i], points[startIndex],  points[endIndex]
-        ) 
+        );
         if (distanceSquared > maxDistanceSquared)
         {
             maxDistanceIndex = i;

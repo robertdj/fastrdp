@@ -20,8 +20,8 @@ rdp_index(const std::array<py::array_t<double>, N> &arrays, double epsilon)
         buf[k] = arrays[k].request();
 
     // Make sure the input arrays have the correct shape and data type
-    if (buf1.ndim != 1 || buf2.ndim != 1 || buf3.ndim != 1)
-        throw std::domain_error("Inputs should be vectors");
+    // if (buf1.ndim != 1 || buf2.ndim != 1 || buf3.ndim != 1)
+    //     throw std::domain_error("Inputs should be vectors");
 
     auto nPoints = buf[0].size;
     for (std::size_t i = 1; i < N; ++i)
@@ -40,7 +40,6 @@ rdp_index(const std::array<py::array_t<double>, N> &arrays, double epsilon)
     // std::vector<double> vec1((double *)buf1.ptr, (double *)buf1.ptr + buf1.size);
     // std::vector<double> vec2((double *)buf2.ptr, (double *)buf2.ptr + buf2.size);
     // std::vector<double> vec3((double *)buf3.ptr, (double *)buf3.ptr + buf3.size);
-    std::vector<rdp::Point<N>> points;
 
     // Prepare input for RDP function
     std::vector<rdp::Point<N>> points;
@@ -84,7 +83,7 @@ template <std::size_t N>
 py::tuple rdp_wrapper(const std::array<py::array_t<double>, N> &arrays, double epsilon)
 {
     // std::vector<size_t> indicesToKeep = rdp_index(array1, array2, array3, epsilon);
-    std::vector<size_t> indicesToKeep = rdp_index_impl<N>(arrays, epsilon);
+    std::vector<size_t> indicesToKeep = rdp_index<N>(arrays, epsilon);
 
     // py::buffer_info buf1 = array1.request(), buf2 = array2.request(), buf3 = array3.request();
     std::array<py::buffer_info, N> buf;
@@ -108,7 +107,7 @@ py::tuple rdp_wrapper(const std::array<py::array_t<double>, N> &arrays, double e
     {
         size_t idx = indicesToKeep[i];
         for (size_t k = 0; k < N; ++k)
-            coordsOut[k][i] = static_cast<double *>(buffers[k].ptr)[idx];
+            coordsOut[k][i] = static_cast<double *>(buf[k].ptr)[idx];
     }
 
     // for (size_t i = 0; i < nIndices; ++i)
