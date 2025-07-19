@@ -20,6 +20,9 @@ rdp_index(const std::array<py::array_t<double>, N> &arrays, double epsilon)
     // Make sure the input arrays have the correct shape and data type
     auto nPoints = buf[0].size;
     for (std::size_t i = 1; i < N; ++i)
+        if (buf[i].ndim != 1)
+            throw std::invalid_argument("Inputs should be vectors");
+
         if (nPoints != buf[i].size)
             throw std::length_error("Inputs have different lengths");
     if (nPoints <= 2)
