@@ -133,15 +133,13 @@ double point2LineDistanceSquared(const Point<N> &p, const Point<N> &a, const Poi
         // Therefore,
         // ((y2 - y1) * x0 + (x2 - x1) * y0 + x2 * y1 - y2 * x1)
         // can be written as
-        // (ab.data[1] * p.data[0] + ab.data[0] * p.data[1] + b.data[0] * a.data[1] - b.data[1] * a.data[0])
+        // ab.data[1] * (p.data[0] - a.data[0]) - ab.data[0] * (p.data[1] - a.data[1])
         // and
         // sqrt((y2 - y1)**2 + (x2 - x1)**2)**2
         // can be written as
         // ab.lengthSquared()
-
         // Calculate the numerator
-        double distance = (ab.data[1] * p.data[0] + ab.data[0] * p.data[1] + b.data[0] * a.data[1] - b.data[1] * a.data[0]);
-
+        double distance = ab.data[1] * (p.data[0] - a.data[0]) - ab.data[0] * (p.data[1] - a.data[1]);
         // Return the square of the distance
         return (distance * distance) / ab.lengthSquared();
     } else if constexpr (N == 3) { // 3D
