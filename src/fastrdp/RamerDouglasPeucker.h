@@ -2,17 +2,18 @@
 #define RDP
 
 #include <vector>
+#include "Geometry.h"
 
 namespace rdp {
-struct Point2D
-{
-    double x;
-    double y;
-};
 
-void RamerDouglasPeucker(const std::vector<Point2D> &pointList, std::size_t startIndex,
+template <std::size_t N>
+void RamerDouglasPeucker(const std::vector<Point<N>> &pointList, std::size_t startIndex,
                          std::size_t endIndex, double epsilonSquared,
                          std::vector<std::size_t> &indicesToKeep);
-}
 
+extern template void RamerDouglasPeucker<2>(const std::vector<Point<2>>&,
+                std::size_t, std::size_t,
+                double, std::vector<std::size_t>&);
+
+}
 #endif
