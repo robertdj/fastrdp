@@ -2,6 +2,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include "RamerDouglasPeucker.h"
+#include "Geometry.h"
 
 namespace py = pybind11;
 
@@ -39,17 +40,6 @@ rdp_index(const std::array<py::array_t<double>, N> &arrays, double epsilon)
     for (std::size_t i = 0; i < nPoints; ++i)
         for (std::size_t k = 0; k < N; ++k)
             points[i].data[k] = static_cast<const double*>(buf[k].ptr)[i];
-    
-    // // Prepare input for RDP function
-    // std::vector<rdp::Point<N>> points;
-    // points.reserve(nPoints);
-    // for (std::size_t i = 0; i < nPoints; ++i)
-    // {
-    //     rdp::Point<N> p;
-    //     for (std::size_t k = 0; k < N; ++k)
-    //         p.data[k] = static_cast<double *>(buf[k].ptr)[i];
-    //     points.push_back(p);
-    // }
 
     std::vector<size_t> indicesToKeep;
     indicesToKeep.reserve(nPoints);
