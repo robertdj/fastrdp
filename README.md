@@ -16,7 +16,7 @@ There are two functions in the *fastrdp* package: `rdp` that returns the
 points by the RDP algorithm and `rdp_index` that returns the indices of
 the returned points in the input.
 
-Here is a 2D example from the Wikipedia page linked to above with a
+Here is an example from the Wikipedia page linked to above with a
 description of the algorithm. The original line is black and the
 approximating line is red.
 
@@ -36,32 +36,6 @@ plt.show()
 ```
 
 ![](README_files/figure-commonmark/cell-2-output-1.png)
-
-Here is a 3D example of a spiral. The original line is black and the
-approximating line is red.
-
-```
-import matplotlib.pyplot as plt
-import numpy as np
-import fastrdp
-
-t = np.linspace(0, 10 * np.pi, 10_000)
-x = t * np.cos(t)
-y = t * np.sin(t)
-z = t
-
-x_new, y_new, z_new = fastrdp.rdp(x, y, z, 1.0)
-
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-ax.plot(x, y, z, color='black', linewidth=2.0)
-ax.plot(x_new, y_new, z_new, linestyle='dashed', color='red')
-
-ax.legend()
-plt.show()
-```
-
-![](README_files/figure-commonmark/cell-3-output-1.png)
 
 # Performance
 
