@@ -92,6 +92,9 @@ double point2LineDistanceSquared(const Point<N> &p, const Point<N> &a, const Poi
         // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
         double distance = ab.data[1] * (p.data[0] - a.data[0]) - ab.data[0] * (p.data[1] - a.data[1]);
         return (distance * distance) / ab.lengthSquared();
+    } else if constexpr (N == 3) { // 3D
+        // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Another_vector_formulation
+        return cross(p - a, ab).lengthSquared() / ab.lengthSquared();
     } else {
         static_assert(N == 2 || N == 3, "Only 2D and 3D supported.");
     }
