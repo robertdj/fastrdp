@@ -48,7 +48,7 @@ from timeit import timeit
 timeit(lambda: fastrdp.rdp(x, y, 0.1), number=10_000)
 ```
 
-    0.752040293009486
+    0.6944626589975087
 
 The pure Python implementation in the [*rdp*
 package](https://pypi.org/project/rdp) takes longer to execute a single
@@ -60,13 +60,15 @@ z = np.column_stack((x, y))
 timeit(lambda: rdp.rdp(z, epsilon=0.1), number=1)
 ```
 
-    0.764814316004049
+    0.758994490999612
 
 To illustrate how *fastrdp* scales consider the following graph that
-shows execution time for an increasing number of random input points.
-The figure is produced with the scripts in the `performance` folder.
+shows execution time for an increasing number of point for both random
+and structured data. The latter means that the output of `rdp` is
+**much** smaller than the input. The figure is produced with the script
+in the `performance` folder.
 
-![](https://github.com/robertdj/fastrdp/raw/main/README_files/performance.png)
+![](performance/performance.png)
 
 # Compilation
 
@@ -88,6 +90,15 @@ pip install -e '.[dev]'
 
 The single quotes are needed in zsh, but is perhaps superfluous in other
 shells.
+
+# README
+
+This README is made from the [Quarto](https://quarto.org) document
+`README.qmd` with this command
+
+``` {bash}
+quarto render README.qmd --to gfm --output README.md
+```
 
 # Acknowledgements
 
