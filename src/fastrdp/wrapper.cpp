@@ -36,16 +36,17 @@ rdp_index(const std::array<py::array_t<double>, N> &arrays, double epsilon)
     }
 
 
-    std::vector<rdp::Point<N>> points(nPoints);
-    for (std::size_t i = 0; i < nPoints; ++i)
-        for (std::size_t k = 0; k < N; ++k)
-            points[i].data[k] = static_cast<const double*>(buf[k].ptr)[i];
+    // Prepare input for RDP function
+    std::vector<rdp::Point2D> points;
+    points.reserve(nPoints);
+    for (auto i = 0; i < nPoints; i++)
+        points.push_back({vec1[i], vec2[i]});
 
     std::vector<size_t> indicesToKeep;
     indicesToKeep.reserve(nPoints);
     indicesToKeep.push_back(0);
 
-    rdp::RamerDouglasPeucker(points, 0, nPoints - 1, epsilon * epsilon, indicesToKeep);
+    rdp::RamerDouglasPeucker2D(points, 0, nPoints - 1, epsilon * epsilon, indicesToKeep);
 
     return indicesToKeep;
 }
