@@ -8,8 +8,7 @@
 namespace rdp {
 
 // Find the point furthest away from reference (points[startIndex] == points[endIndex])
-template <std::size_t N>
-std::pair<double, std::size_t> findMostDistantPoint(const std::vector<Point<N>> &points,
+std::pair<double, std::size_t> findMostDistantPoint2D(const std::vector<Point2D> &points,
                                                     std::size_t startIndex, std::size_t endIndex)
 {
     assert(startIndex < endIndex && "Start index must be smaller than end index");
@@ -39,8 +38,7 @@ std::pair<double, std::size_t> findMostDistantPoint(const std::vector<Point<N>> 
 // Find the point with the maximum distance from line between start and end.
 // Rearranging this formula to avoid recomputing constants:
 // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
-template <std::size_t N>
-std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<Point<N>> &points,
+std::pair<double, std::size_t> findMostDistantPointFromLine2D(const std::vector<Point2D> &points,
                                                             std::size_t startIndex,
                                                             std::size_t endIndex)
 {
@@ -48,12 +46,12 @@ std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<Po
     assert(endIndex < points.size() && "End index is larger than the number of points");
     assert(points.size() >= 2 && "At least two points needed");
 
-    Vec<N> lineDiff = points[endIndex] - points[startIndex];
+    Vec2D lineDiff = points[endIndex] - points[startIndex];
     double lineLengthSquared = lineDiff.lengthSquared();
 
     if (lineLengthSquared == 0)
     {
-        return findMostDistantPoint(points, startIndex, endIndex);
+        return findMostDistantPoint2D(points, startIndex, endIndex);
     }
 
     double maxDistanceSquared = 0.0;
@@ -61,8 +59,7 @@ std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<Po
 
     for (std::size_t i = startIndex + 1; i != endIndex; ++i)
     {
-        double distanceSquared = point2LineDistanceSquared(points[i], points[startIndex],  points[endIndex]
-        );
+        double distanceSquared = point2LineDistanceSquared2D(points[i], points[startIndex],  points[endIndex]);
         if (distanceSquared > maxDistanceSquared)
         {
             maxDistanceIndex = i;
@@ -74,8 +71,7 @@ std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<Po
     return std::make_pair(maxDistanceSquared, maxDistanceIndex);
 }
 
-template <std::size_t N>
-void RamerDouglasPeucker(const std::vector<Point<N>> &points, std::size_t startIndex,
+void RamerDouglasPeucker2D(const std::vector<Point2D> &points, std::size_t startIndex,
                          std::size_t endIndex, double epsilonSquared,
                          std::vector<std::size_t> &indicesToKeep)
 {
@@ -90,12 +86,12 @@ void RamerDouglasPeucker(const std::vector<Point<N>> &points, std::size_t startI
     assert(indicesToKeep[0] == 0 && "indicesToKeep should be initialized with a 0");
 
     auto [maxDistanceSquared, maxDistanceIndex] =
-        findMostDistantPointFromLine(points, startIndex, endIndex);
+        findMostDistantPointFromLine2D(points, startIndex, endIndex);
 
     if (maxDistanceSquared > epsilonSquared)
     {
-        RamerDouglasPeucker(points, startIndex, maxDistanceIndex, epsilonSquared, indicesToKeep);
-        RamerDouglasPeucker(points, maxDistanceIndex, endIndex, epsilonSquared, indicesToKeep);
+        RamerDouglasPeucker2D(points, startIndex, maxDistanceIndex, epsilonSquared, indicesToKeep);
+        RamerDouglasPeucker2D(points, maxDistanceIndex, endIndex, epsilonSquared, indicesToKeep);
     }
     else
     {
@@ -104,9 +100,5 @@ void RamerDouglasPeucker(const std::vector<Point<N>> &points, std::size_t startI
         indicesToKeep.push_back(endIndex);
     }
 }
-
-template void RamerDouglasPeucker<2>(const std::vector<Point<2>>&,
-                                     std::size_t, std::size_t,
-                                     double, std::vector<std::size_t>&);
 
 } // end namespace rdp
