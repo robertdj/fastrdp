@@ -35,20 +35,43 @@ rdp_index(const std::array<py::array_t<double>, N> &arrays, double epsilon)
         return trivial_indices;
     }
 
+    if (N == 2){
+        std::vector<double> vec1((double *)buf[0].ptr, (double *)buf[0].ptr + buf[0].size);
+        std::vector<double> vec2((double *)buf[1].ptr, (double *)buf[1].ptr + buf[1].size);
 
-    // Prepare input for RDP function
-    std::vector<rdp::Point2D> points;
-    points.reserve(nPoints);
-    for (auto i = 0; i < nPoints; i++)
-        points.push_back({vec1[i], vec2[i]});
+        // Prepare input for RDP function
+        std::vector<rdp::Point2D> points;
+        points.reserve(nPoints);
+        for (std::size_t i = 0; i < nPoints; i++)
+            points.push_back({vec1[i], vec2[i]});
 
-    std::vector<size_t> indicesToKeep;
-    indicesToKeep.reserve(nPoints);
-    indicesToKeep.push_back(0);
+        std::vector<size_t> indicesToKeep;
+        indicesToKeep.reserve(nPoints);
+        indicesToKeep.push_back(0);
 
-    rdp::RamerDouglasPeucker2D(points, 0, nPoints - 1, epsilon * epsilon, indicesToKeep);
+        rdp::RamerDouglasPeucker2D(points, 0, nPoints - 1, epsilon * epsilon, indicesToKeep);
+        return indicesToKeep;
+    } else if (N == 3)
+    {
+        std::vector<double> vec1((double *)buf[0].ptr, (double *)buf[0].ptr + buf[0].size);
+        std::vector<double> vec2((double *)buf[1].ptr, (double *)buf[1].ptr + buf[1].size);
+        std::vector<double> vec3((double *)buf[2].ptr, (double *)buf[2].ptr + buf[2].size);
 
-    return indicesToKeep;
+        // Prepare input for RDP function
+        std::vector<rdp::Point3D> points;
+        points.reserve(nPoints);
+        for (std::size_t i = 0; i < nPoints; i++)
+            points.push_back({vec1[i], vec2[i], vec3[i]});
+
+        std::vector<size_t> indicesToKeep;
+        indicesToKeep.reserve(nPoints);
+        indicesToKeep.push_back(0);
+
+        rdp::RamerDouglasPeucker3D(points, 0, nPoints - 1, epsilon * epsilon, indicesToKeep);
+        return indicesToKeep;
+    }
+    
+    
 }
 
 template <std::size_t N>
