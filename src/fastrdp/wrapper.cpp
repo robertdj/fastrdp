@@ -31,7 +31,7 @@ std::vector<size_t> rdp_index(py::array_t<double> array1, py::array_t<double> ar
     std::vector<double> vec2((double *)buf2.ptr, (double *)buf2.ptr + buf2.size);
 
     // Prepare input for RDP function
-    std::vector<rdp::Point2D> points;
+    std::vector<rdp::Point<2>> points;
     points.reserve(nPoints);
     for (auto i = 0; i < nPoints; i++)
         points.push_back({vec1[i], vec2[i]});
