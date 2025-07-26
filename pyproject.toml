@@ -16,7 +16,7 @@ classifiers = [
 requires-python = ">=3.9"
 
 [project.optional-dependencies]
-dev = ["build", "numpy >= 1.7.0", "pytest", "wheel"]
+dev = ["build", "numpy >= 1.7.0", "pytest", "wheel", "polars", "plotnine", "pyarrow"]
 docs = ["jupyter", "matplotlib", "rdp"]
 
 [project.urls]
