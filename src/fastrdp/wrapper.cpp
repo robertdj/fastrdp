@@ -27,14 +27,14 @@ std::vector<size_t> rdp_index(py::array_t<double> array1, py::array_t<double> ar
         return trivial_indices;
     }
 
-    std::vector<double> vec1((double *)buf1.ptr, (double *)buf1.ptr + buf1.size);
-    std::vector<double> vec2((double *)buf2.ptr, (double *)buf2.ptr + buf2.size);
+    std::vector<double> vec1((double*)buf1.ptr, (double*)buf1.ptr + buf1.size);
+    std::vector<double> vec2((double*)buf2.ptr, (double*)buf2.ptr + buf2.size);
 
     // Prepare input for RDP function
-    std::vector<rdp::Point2D> points;
+    std::vector<rdp::Point<2>> points;
     points.reserve(nPoints);
     for (auto i = 0; i < nPoints; i++)
-        points.push_back({vec1[i], vec2[i]});
+        points.push_back({ vec1[i], vec2[i] });
 
     std::vector<size_t> indicesToKeep;
     indicesToKeep.reserve(nPoints);
@@ -56,8 +56,8 @@ std::pair<py::array_t<double>, py::array_t<double>> rdp_wrapper(py::array_t<doub
     std::vector<size_t> indicesToKeep = rdp_index(array1, array2, epsilon);
 
     py::buffer_info buf1 = array1.request(), buf2 = array2.request();
-    std::vector<double> vec1((double *)buf1.ptr, (double *)buf1.ptr + buf1.size);
-    std::vector<double> vec2((double *)buf2.ptr, (double *)buf2.ptr + buf2.size);
+    std::vector<double> vec1((double*)buf1.ptr, (double*)buf1.ptr + buf1.size);
+    std::vector<double> vec2((double*)buf2.ptr, (double*)buf2.ptr + buf2.size);
 
     size_t nIndices = indicesToKeep.size();
     std::vector<double> xOut(nIndices);
