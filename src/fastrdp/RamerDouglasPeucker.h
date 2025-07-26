@@ -1,57 +1,142 @@
-#include <cassert>
+// #include <cassert>
 #include <tuple>
 #include <vector>
+#include <array>
+#include <cmath>
+#include <cstddef>
+#include <type_traits>
 
 namespace rdp
 {
-    template <typename T>
-    concept PointLike = requires(const T & a, const T & b, double f) {
-        { a.abs2() } -> std::convertible_to<double>;
-        { a.dot(b) } -> std::convertible_to<double>;
-        { a.scale(f) } -> std::same_as<T>;
-    };
+    template <std::size_t N>
+    struct Point {
+        std::array<double, N> coords{};
 
-    template <typename Derived>
-    struct PointBase {
-        const Derived& derived() const { return static_cast<const Derived&>(*this); }
+        Point() = default;
 
-        Derived project(const Derived& other) const {
-            double lengthSquared = derived().abs2();
-            double factor = derived().dot(other) / lengthSquared;
-            return derived().scale(factor);
+        // Constructor for N = 2
+        Point(double x, double y) {
+            static_assert(N == 2, "This constructor is only valid for N=2");
+            coords[0] = x;
+            coords[1] = y;
+        }
+
+        // Constructor for N = 3
+        Point(double x, double y, double z) {
+            static_assert(N == 3, "This constructor is only valid for N=3");
+            coords[0] = x;
+            coords[1] = y;
+            coords[2] = z;
+        }
+
+        bool operator==(const Point& other) const {
+            return coords == other.coords;
         }
     };
 
-    struct Point2 : public PointBase<Point2> {
-        double x, y;
+    template <std::size_t N>
+    struct Vector {
+        std::array<double, N> coords{};
 
-        Point2(double x_, double y_) : x(x_), y(y_) {}
+        Vector() = default;
 
-        double abs2() const { return x * x + y * y; }
-        double dot(const Point2& other) const { return x * other.x + y * other.y; }
+        Vector(const Point<N>& p1, const Point<N>& p2) {
+            for (std::size_t i = 0; i < N; ++i) {
+                coords[i] = p2.coords[i] - p1.coords[i];
+            }
+        }
 
-        Point2 operator-(const Point2& other) const { return { x - other.x, y - other.y }; }
-        Point2 operator+(const Point2& other) const { return { x + other.x, y + other.y }; }
-        Point2 scale(double factor) const { return { x * factor, y * factor }; }
+        double abs2() const {
+            double sum = 0.0;
+            for (const auto& coord : coords) {
+                sum += coord * coord;
+            }
+            return sum;
+        }
+
+        double dot(const Vector& other) const {
+            double result = 0.0;
+            for (std::size_t i = 0; i < N; ++i) {
+                result += coords[i] * other.coords[i];
+            }
+            return result;
+        }
+
+        Vector normalized2() const {
+            double length = abs2();
+            Vector result;
+
+            if (length == 0) {
+                return result;
+            }
+
+            for (std::size_t i = 0; i < N; ++i) {
+                result.coords[i] = coords[i] / length;
+            }
+            return result;
+        }
+
+        Vector scale(double factor) const {
+            Vector result;
+            for (std::size_t i = 0; i < N; ++i) {
+                result.coords[i] = coords[i] * factor;
+            }
+            return result;
+        }
+
+        Vector operator-(const Vector& other) const {
+            Vector result;
+            for (std::size_t i = 0; i < N; ++i) {
+                result.coords[i] = coords[i] - other.coords[i];
+            }
+            return result;
+        }
     };
 
-    // Find the point furthest away from reference (points[startIndex] == points[endIndex])
-    template <PointLike T>
-    std::pair<double, std::size_t> findMostDistantPoint(const std::vector<T>& points,
+    template <std::size_t N>
+    struct Subspace {
+        Vector<N> basis;
+        Vector<N> direction;
+
+        Subspace(const Point<N>& p1, const Point<N>& p2)
+        {
+            basis = Vector<N>(p1, p2);
+            direction = basis.normalized2();
+        }
+
+        bool isNull() const {
+            return basis.abs2() == 0;
+        }
+
+        Vector<N> project(const Vector<N>& w) const {
+            double dotProduct = w.dot(direction);
+            return basis.scale(dotProduct);
+        }
+
+        double distance2(const Vector<N>& w) const {
+            auto projected = project(w);
+            return (w - projected).abs2();
+        }
+    };
+
+    // Find the point furthest away from reference(points[startIndex] == points[endIndex])
+    template <std::size_t N>
+    std::pair<double, std::size_t> findMostDistantPoint(const std::vector<Point<N>>& points,
         std::size_t startIndex, std::size_t endIndex)
     {
         assert(startIndex < endIndex && "Start index must be smaller than end index");
         assert(endIndex < points.size() && "End index is larger than the number of points");
         assert(points.size() >= 2 && "At least two points needed");
 
-        assert((points[startIndex] - points[endIndex]).abs2() == 0 && "Start and end point must be equal");
+        assert(points[startIndex] == points[endIndex] && "Start and end point must be equal");
 
         double maxDistanceSquared = 0.0;
         std::size_t maxDistanceIndex = startIndex;
 
         for (std::size_t i = startIndex + 1; i != endIndex; ++i)
         {
-            double distanceSquared = (points[i] - points[startIndex]).abs2();
+            auto v = Vector<N>(points[startIndex], points[i]);
+            double distanceSquared = v.abs2();
 
             if (distanceSquared > maxDistanceSquared)
             {
@@ -66,8 +151,8 @@ namespace rdp
     // Find the point with the maximum distance from line between start and end.
     // Rearranging this formula to avoid recomputing constants:
     // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
-    template <PointLike T>
-    std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<T>& points,
+    template <std::size_t N>
+    std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<Point<N>>& points,
         std::size_t startIndex,
         std::size_t endIndex)
     {
@@ -75,44 +160,34 @@ namespace rdp
         assert(endIndex < points.size() && "End index is larger than the number of points");
         assert(points.size() >= 2 && "At least two points needed");
 
-        auto lineDiff = points[endIndex] - points[startIndex];
-        double lineLengthSquared = lineDiff.abs2();
+        auto lineDiff = Subspace(points[startIndex], points[endIndex]);
 
-        if (lineLengthSquared == 0)
+        if (lineDiff.isNull())
         {
             return findMostDistantPoint(points, startIndex, endIndex);
         }
-
-        // double offset = points[startIndex].y * lineDiff.x - points[startIndex].x * lineDiff.y;
 
         double maxDistanceSquared = 0.0;
         std::size_t maxDistanceIndex = startIndex;
 
         for (std::size_t i = startIndex + 1; i != endIndex; ++i)
         {
-            auto w = points[i] - points[startIndex];
-            auto projectedW = lineDiff.project(w);
-            // auto ww = w - projectedW;
-            auto ww = points[startIndex] + projectedW;
-            double unscaledDistanceSquared = ww.abs2();
-            // double unscaledDistance = offset - points[i].y * lineDiff.x + points[i].x * lineDiff.y;
-            // double unscaledDistanceSquared = unscaledDistance * unscaledDistance;
+            auto v = Vector<N>(points[startIndex], points[i]);
+            double distanceSquared = lineDiff.distance2(v);
 
-            if (unscaledDistanceSquared > maxDistanceSquared)
+            if (distanceSquared > maxDistanceSquared)
             {
                 maxDistanceIndex = i;
-                maxDistanceSquared = unscaledDistanceSquared;
+                maxDistanceSquared = distanceSquared;
             }
         }
-
-        maxDistanceSquared /= lineLengthSquared;
 
         // Constructor is faster than initialization
         return std::make_pair(maxDistanceSquared, maxDistanceIndex);
     }
 
-    template <PointLike T>
-    void RamerDouglasPeucker(const std::vector<T>& points, std::size_t startIndex,
+    template <std::size_t N>
+    void RamerDouglasPeucker(const std::vector<Point<N>>& points, std::size_t startIndex,
         std::size_t endIndex, double epsilonSquared,
         std::vector<std::size_t>& indicesToKeep)
     {
