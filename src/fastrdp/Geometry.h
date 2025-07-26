@@ -8,27 +8,37 @@
 
 namespace rdp {
 
-struct Vec2D {
+template <std::size_t N>
+struct Vec; // no definition here
+
+template <>
+struct Vec<2> {
     double x = 0.0;
     double y = 0.0;
 
-    Vec2D() = default;
-    Vec2D(double x_, double y_) : x(x_), y(y_) {}
+    Vec<2>() = default;
+    Vec<2>(double x_, double y_) : x(x_), y(y_) {}
 
-    Vec2D operator+(const Vec2D& other) const {
-        return Vec2D(x + other.x, y + other.y);
+    // old
+    Vec<2> operator+(const Vec<2>& other) const {
+        return Vec<2>(x + other.x, y + other.y);
     }
 
-    Vec2D operator-(const Vec2D& other) const {
-        return Vec2D(x - other.x, y - other.y);
+    Vec<2> operator-(const Vec<2>& other) const {
+        return Vec<2>(x - other.x, y - other.y);
     }
 
-    Vec2D operator*(double s) const {
-        return Vec2D(x * s, y * s);
+    Vec<2> operator*(double s) const {
+        return Vec<2>(x * s, y * s);
     }
 
-    double dot(const Vec2D& other) const {
+    double dot(const Vec<2>& other) const {
         return x * other.x + y * other.y;
+    }
+
+    // 2D-cross product
+    double cross(const Vec& other) const {
+        return x * other.y - y * other.x;
     }
 
     double lengthSquared() const {
@@ -40,32 +50,49 @@ struct Vec2D {
     }
 };
 
-struct Point2D {
+// Empty definition
+template <std::size_t N>
+struct Point;
+
+template <>
+struct Point<2> {
     double x = 0.0;
     double y = 0.0;
 
-    Point2D() = default;
-    Point2D(double x_, double y_) : x(x_), y(y_) {}
+    Point() = default;
+    Point(double x_, double y_) : x(x_), y(y_) {}
 
-    Vec2D operator-(const Point2D& other) const {
-        return Vec2D(x - other.x, y - other.y);
+    double& operator[](std::size_t i) {
+        return i == 0 ? x : y;
     }
 
-    Point2D operator+(const Vec2D& v) const {
-        return Point2D(x + v.x, y + v.y);
+    const double& operator[](std::size_t i) const {
+        return i == 0 ? x : y;
+    }
+    
+    Vec<2> operator-(const Point<2> &other) const {
+        return Vec<2>{x - other.x, y - other.y};
+    }
+
+    Point<2> operator+(const Vec<2> &v) const {
+        return Point<2>{x + v.x, y + v.y};
     }
 };
 
-inline double point2LineDistanceSquared2D(const Point2D &p, const Point2D &a, const Point2D &b) {
-    Vec2D ab = b - a;
+template <std::size_t N>
+inline double point2LineDistanceSquared(const Point<N>& p, const Point<N>& a, const Point<N>& b) {
+    static_assert(N == 2, "Only 2D is supported.");
+
+    Vec<N> ab = b - a;
 
     if (ab.lengthSquared() < 1.0e-14)
         return (p - a).lengthSquared();
 
     // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
-    double distance = ab.y * (p.x - a.x) - ab.x * (p.y - a.y);
-    
-    return (distance * distance) / ab.lengthSquared();
+    Vec<N> ap = p - a;
+    double crossVal = (ab).cross(ap);
+
+    return (crossVal * crossVal) / ab.lengthSquared();
 }
 
 } // namespace rdp

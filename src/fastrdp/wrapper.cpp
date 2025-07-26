@@ -6,21 +6,28 @@
 
 namespace py = pybind11;
 
-std::vector<size_t> rdp_index(py::array_t<double> array1, py::array_t<double> array2, double epsilon)
+template <std::size_t N>
+std::vector<std::size_t>
+rdp_index(const std::array<py::array_t<double>, N> &arrays, double epsilon)
 {
     if (epsilon < 0.0)
         throw std::domain_error("epsilon must be non-negative");
 
-    py::buffer_info buf1 = array1.request(), buf2 = array2.request();
+    // py::buffer_info buf1 = array1.request(), buf2 = array2.request(), buf3 = array3.request();
+    std::array<py::buffer_info, N> buf;
+    for (std::size_t k = 0; k < N; ++k)
+        buf[k] = arrays[k].request();
 
     // Make sure the input arrays have the correct shape and data type
-    if (buf1.ndim != 1 || buf2.ndim != 1)
-        throw std::domain_error("Inputs should be vectors");
+    std::size_t nPoints = buf[0].size;
+    for (std::size_t i = 0; i < N; ++i)
+    {
+        if (buf[i].ndim != 1)
+            throw std::invalid_argument("Inputs should be vectors");
 
-    auto nPoints = buf1.size;
-    if (nPoints != buf2.size)
-        throw std::length_error("Inputs have different lengths");
-
+        if (i > 0 && buf[i].size != buf[0].size)
+            throw std::length_error("Inputs have different lengths");
+    }
     if (nPoints <= 2)
     {
         std::vector<size_t> trivial_indices(nPoints);
@@ -28,61 +35,77 @@ std::vector<size_t> rdp_index(py::array_t<double> array1, py::array_t<double> ar
         return trivial_indices;
     }
 
-    std::vector<double> vec1((double *)buf1.ptr, (double *)buf1.ptr + buf1.size);
-    std::vector<double> vec2((double *)buf2.ptr, (double *)buf2.ptr + buf2.size);
 
-    // Prepare input for RDP function
-    std::vector<rdp::Point2D> points;
-    points.reserve(nPoints);
-    for (auto i = 0; i < nPoints; i++)
-        points.push_back({vec1[i], vec2[i]});
+    std::vector<rdp::Point<2>> points(nPoints);
+    for (std::size_t i = 0; i < nPoints; ++i)
+        for (std::size_t k = 0; k < N; ++k)
+            points[i][k] = static_cast<const double*>(buf[k].ptr)[i];
 
     std::vector<size_t> indicesToKeep;
     indicesToKeep.reserve(nPoints);
     indicesToKeep.push_back(0);
 
-    rdp::RamerDouglasPeucker2D(points, 0, nPoints - 1, epsilon * epsilon, indicesToKeep);
+    rdp::RamerDouglasPeucker<N>(points, 0, nPoints - 1, epsilon * epsilon, indicesToKeep);
 
     return indicesToKeep;
 }
 
-py::array_t<size_t> rdp_index_wrapper(py::array_t<double> array1, py::array_t<double> array2, double epsilon)
+template <std::size_t N>
+py::array_t<std::size_t>
+rdp_index_wrapper(const std::array<py::array_t<double>, N> &arrays, double epsilon)
 {
-    std::vector<size_t> indicesToKeep = rdp_index(array1, array2, epsilon);
+    std::vector<size_t> indicesToKeep = rdp_index<N>(arrays, epsilon);
     return py::array_t<size_t>(indicesToKeep.size(), indicesToKeep.data());
 }
 
-std::pair<py::array_t<double>, py::array_t<double>> rdp_wrapper(py::array_t<double> array1, py::array_t<double> array2, double epsilon)
+template <std::size_t N>
+py::tuple rdp_wrapper(const std::array<py::array_t<double>, N> &arrays, double epsilon)
 {
-    std::vector<size_t> indicesToKeep = rdp_index(array1, array2, epsilon);
+    std::vector<size_t> indicesToKeep = rdp_index<N>(arrays, epsilon);
 
-    py::buffer_info buf1 = array1.request(), buf2 = array2.request();
-    std::vector<double> vec1((double *)buf1.ptr, (double *)buf1.ptr + buf1.size);
-    std::vector<double> vec2((double *)buf2.ptr, (double *)buf2.ptr + buf2.size);
+    std::array<py::buffer_info, N> buf;
+    for (std::size_t k = 0; k < N; ++k)
+        buf[k] = arrays[k].request();
 
     size_t nIndices = indicesToKeep.size();
-    std::vector<double> xOut(nIndices);
-    std::vector<double> yOut(nIndices);
+    std::array<std::vector<double>, N> coordsOut;
+    for (size_t k = 0; k < N; ++k)
+        coordsOut[k].resize(nIndices);
 
+    // Output arrays
     for (size_t i = 0; i < nIndices; ++i)
     {
-        size_t index = indicesToKeep[i];
-        xOut[i] = vec1[index];
-        yOut[i] = vec2[index];
+        size_t idx = indicesToKeep[i];
+        for (size_t k = 0; k < N; ++k)
+            coordsOut[k][i] = static_cast<double *>(buf[k].ptr)[idx];
     }
 
-    return std::make_pair(py::array(xOut.size(), xOut.data()), py::array(yOut.size(), yOut.data()));
+    py::tuple result(N);
+    for (size_t k = 0; k < N; ++k)
+        result[k] = py::array(coordsOut[k].size(), coordsOut[k].data());
+
+    return result;
+}
+
+
+py::array_t<std::size_t> rdp_index_wrapper_2d(py::array_t<double> x, py::array_t<double> y, double epsilon) {
+    return rdp_index_wrapper<2>({x, y}, epsilon);
+}
+
+py::tuple rdp_wrapper_2d(py::array_t<double> x, py::array_t<double> y, double epsilon) {
+    return rdp_wrapper<2>({x, y}, epsilon);
 }
 
 PYBIND11_MODULE(_fastrdp, m)
 {
-    m.def("rdp_index", &rdp_index_wrapper, R"mydelimiter(
+    m.def("rdp_index", &rdp_index_wrapper_2d, R"mydelimiter(
         rdp_index(x, y, epsilon)
 
     The input is a curve sampled at the points `(x[i], y[i])` from `x` and `y`.
     Returns the indices of the elements that are kept in an approximation using the Ramer-Douglas-Peucker algorithm with tolerance `epsilon`.
 )mydelimiter");
-    m.def("rdp", &rdp_wrapper, R"mydelimiter(
+
+    m.def("rdp", &rdp_wrapper_2d, R"mydelimiter(
         rdp(x, y, epsilon)
 
     The input is a curve sampled at the points `(x[i], y[i])` from `x` and `y`.
