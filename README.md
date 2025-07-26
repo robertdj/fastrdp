@@ -48,11 +48,11 @@ from timeit import timeit
 timeit(lambda: fastrdp.rdp(x, y, 0.1), number=10_000)
 ```
 
-    0.6944626589975087
+    1.0156666769762523
 
 The pure Python implementation in the [*rdp*
-package](https://pypi.org/project/rdp) takes longer to execute a single
-run than *fastrdp* takes to execute 10.000 runs.
+package](https://pypi.org/project/rdp) takes about the same time to
+execute a single run than *fastrdp* takes to execute 10.000 runs.
 
 ``` python
 import rdp
@@ -60,7 +60,7 @@ z = np.column_stack((x, y))
 timeit(lambda: rdp.rdp(z, epsilon=0.1), number=1)
 ```
 
-    0.758994490999612
+    0.7918517729849555
 
 To illustrate how *fastrdp* scales consider the following graph that
 shows execution time for an increasing number of point for both random
