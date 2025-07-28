@@ -128,3 +128,5 @@ quarto render README.qmd --to gfm --output README.md
 Setting up package metadata to build and compile *fastrdp* is inspired
 by the [pybind11 example
 package](https://github.com/pybind/python_example).
+
+Thanks to @max-models for his work on the 3D version.
