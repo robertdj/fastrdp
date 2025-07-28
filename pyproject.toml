@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fastrdp"
-version = "0.2.2"
+version = "0.3.0"
 description = "Implementation of the Ramer-Douglas-Peucker algorithm"
 readme = "README.md"
 authors = [{ name = "Robert Dahl Jacobsen" }]
