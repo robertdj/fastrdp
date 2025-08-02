@@ -1,4 +1,4 @@
-// #include <cassert>
+#include <cassert>
 #include <tuple>
 #include <vector>
 #include "Geometry.h"
@@ -25,19 +25,12 @@ namespace rdp
 
         Point() = default;
 
-        // Constructor for N = 2
+        Point(const std::array<double, N>& coords) : coords(coords) {}
+
         Point(double x, double y) {
             static_assert(N == 2, "This constructor is only valid for N=2");
             coords[0] = x;
             coords[1] = y;
-        }
-
-        // Constructor for N = 3
-        Point(double x, double y, double z) {
-            static_assert(N == 3, "This constructor is only valid for N=3");
-            coords[0] = x;
-            coords[1] = y;
-            coords[2] = z;
         }
 
         bool operator==(const Point& other) const {

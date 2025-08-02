@@ -96,6 +96,50 @@ py::tuple rdp_wrapper_2d(py::array_t<double> x, py::array_t<double> y, double ep
     return rdp_wrapper<2>({x, y}, epsilon);
 }
 
+
+std::vector<size_t> rdp_index_array(py::array_t<double> array, double epsilon)
+{
+    if (epsilon < 0.0)
+        throw std::domain_error("epsilon must be non-negative");
+
+    py::buffer_info buf = array.request();
+
+    if (buf.ndim != 2)
+        throw std::domain_error("Input must be a 2D array");
+
+    const size_t ncols = buf.shape[1];
+
+    const size_t nPoints = buf.shape[0];
+    std::vector<size_t> indicesToKeep;
+    indicesToKeep.reserve(nPoints);
+    indicesToKeep.push_back(0);
+
+    if (ncols != 2 && ncols != 3)
+        throw std::domain_error("Input must have 2 or 3 columns");
+
+    if (ncols == 2) {
+        auto points = parse_points<2>(array);
+        rdp::RamerDouglasPeucker(points, 0, nPoints - 1, epsilon * epsilon, indicesToKeep);
+    }
+    else if (ncols == 3) {
+        auto points = parse_points<3>(array);
+        rdp::RamerDouglasPeucker(points, 0, nPoints - 1, epsilon * epsilon, indicesToKeep);
+    }
+    else {
+        throw std::domain_error("Points must have 2 or 3 columns");
+    }
+
+    return indicesToKeep;
+}
+
+
+py::array_t<size_t> rdp_index_wrapper_array(py::array_t<double> array, double epsilon)
+{
+    std::vector<size_t> indicesToKeep = rdp_index_array(array, epsilon);
+    return py::array_t<size_t>(indicesToKeep.size(), indicesToKeep.data());
+}
+
+
 PYBIND11_MODULE(_fastrdp, m)
 {
     m.def("rdp_index", &rdp_index_wrapper_2d, R"mydelimiter(
@@ -108,7 +152,7 @@ PYBIND11_MODULE(_fastrdp, m)
     m.def("rdp", &rdp_wrapper_2d, R"mydelimiter(
         rdp(x, y, epsilon)
 
-    The input is a curve sampled at the points `(x[i], y[i])` from `x` and `y`.
-    Select a subset of the points as a coarser approximation using the Ramer-Douglas-Peucker algorithm with tolerance `epsilon`.
+    `X` are samples from an `N` dimensional curve, with each row being a sample.
+    Returns the indices of the elements that are kept in an approximation using the Ramer-Douglas-Peucker algorithm with tolerance `epsilon`.
 )mydelimiter");
 }
