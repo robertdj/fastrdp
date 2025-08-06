@@ -4,29 +4,39 @@ import pathlib
 
 import polars as pl
 import numpy as np
+import numpy.typing as npt
 import plotnine as pn
 
-from fastrdp import rdp
+from fastrdp import rdp, rdpN
 
-def measure_execution_time(x: np.ndarray, y: np.ndarray, epsilon: float = 0.05) -> float:
+def measure_execution_time(x: npt.NDArray, y: npt.NDArray, epsilon: float = 0.05) -> float:
     repetitions = 2 if len(x) >= 1_000_000 else 4
-    total_time = timeit(lambda: rdp(x, y, epsilon), number=repetitions)
-    average_time = total_time / repetitions
-    return average_time
+    total_time1 = timeit(lambda: rdp(x, y, epsilon), number=repetitions)
+    average_time1 = total_time1 / repetitions
+
+    X = np.column_stack((x, y))
+    total_time2 = timeit(lambda: rdpN(X, epsilon), number=repetitions)
+    average_time2 = total_time2 / repetitions
+
+    return average_time1, average_time2
 
 def measure_execution_times(max_exp: int, f) -> pl.DataFrame:
     exponents = list(range(4, max_exp + 1))
-    times = []
+    times1 = []
+    times2 = []
     for exp in exponents:
         print(exp)
         x, y = f(exp)
-        times.append(measure_execution_time(x, y))
+        time1, time2 = measure_execution_time(x, y)
+        times1.append(time1)
+        times2.append(time2)
 
     df_execution_times = pl.DataFrame({
         'Name': 'fastrdp-python',
         'Version': version('fastrdp'),
         'Exponent': exponents,
-        'ExecutionTime': times,
+        'ExecutionTime': times1,
+        'ExecutionTimeN': times2,
     }).with_columns(
         pl.lit(10).pow(pl.col('Exponent')).alias('NumberOfObs')
     )

@@ -74,13 +74,6 @@ class TestEdgeCases:
         assert_array_equal(y, y_new)
 
 
-class TestCastingInputs:
-    def test_inputs_are_casted_to_numpy(self):
-        x = np.array([1.0, 2])
-        x_new, _ = rdp(x.tolist(), x, 0)
-        assert_array_equal(x, x_new)
-
-
 class TestErrorHandling:
     x = np.array([1.0, 2, 3])
 
