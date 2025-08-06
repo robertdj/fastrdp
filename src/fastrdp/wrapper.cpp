@@ -95,13 +95,21 @@ std::vector<size_t> rdp_index_array(py::array_t<double> array, double epsilon)
 
     const size_t ncols = buf.shape[1];
 
+    if (ncols != 2 && ncols != 3)
+        throw std::domain_error("Input must have 2 or 3 columns");
+
     const size_t nPoints = buf.shape[0];
+
+    if (nPoints <= 2)
+    {
+        std::vector<size_t> trivial_indices(nPoints);
+        std::iota(trivial_indices.begin(), trivial_indices.end(), 0);
+        return trivial_indices;
+    }
+
     std::vector<size_t> indicesToKeep;
     indicesToKeep.reserve(nPoints);
     indicesToKeep.push_back(0);
-
-    if (ncols != 2 && ncols != 3)
-        throw std::domain_error("Input must have 2 or 3 columns");
 
     if (ncols == 2) {
         auto points = parse_points<2>(array);
