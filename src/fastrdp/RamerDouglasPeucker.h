@@ -153,27 +153,29 @@ namespace rdp
         assert(endIndex < points.size() && "End index is larger than the number of points");
         assert(points.size() >= 2 && "At least two points needed");
 
-        auto lineDiff = Subspace(points[startIndex], points[endIndex]);
+        const auto lineDiff = Subspace(points[startIndex], points[endIndex]);
 
         if (lineDiff.isNull())
         {
             return findMostDistantPoint(points, startIndex, endIndex);
         }
 
-        double maxDistanceSquared = 0.0;
-        std::size_t maxDistanceIndex = startIndex;
-
-        for (std::size_t i = startIndex + 1; i != endIndex; ++i)
-        {
-            auto v = Vector<N>(points[startIndex], points[i]);
-            double distanceSquared = lineDiff.distance2(v);
-
-            if (distanceSquared > maxDistanceSquared)
-            {
-                maxDistanceIndex = i;
-                maxDistanceSquared = distanceSquared;
-            }
+        if (startIndex + 1 >= endIndex) {
+            return std::make_pair(0.0, startIndex);
         }
+
+        const auto base = points[startIndex];
+        auto it = std::max_element(
+            points.begin() + startIndex + 1,
+            points.begin() + endIndex,
+            [&](const auto& p1, const auto& p2) {
+                return lineDiff.distance2(Vector<N>(base, p1)) <
+                    lineDiff.distance2(Vector<N>(base, p2));
+            }
+        );
+
+        std::size_t maxDistanceIndex = std::distance(points.begin(), it);
+        double maxDistanceSquared = lineDiff.distance2(Vector<N>(base, *it));
 
         // Constructor is faster than initialization
         return std::make_pair(maxDistanceSquared, maxDistanceIndex);
