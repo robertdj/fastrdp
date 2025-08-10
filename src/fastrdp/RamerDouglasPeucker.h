@@ -123,12 +123,13 @@ namespace rdp
 
         assert(points[startIndex] == points[endIndex] && "Start and end point must be equal");
 
+        const auto startPoint = points[startIndex];
         double maxDistanceSquared = 0.0;
         std::size_t maxDistanceIndex = startIndex;
 
         for (std::size_t i = startIndex + 1; i != endIndex; ++i)
         {
-            auto v = Vector<N>(points[startIndex], points[i]);
+            auto v = Vector<N>(startPoint, points[i]);
             double distanceSquared = v.abs2();
 
             if (distanceSquared > maxDistanceSquared)
@@ -153,19 +154,20 @@ namespace rdp
         assert(endIndex < points.size() && "End index is larger than the number of points");
         assert(points.size() >= 2 && "At least two points needed");
 
-        auto lineDiff = Subspace(points[startIndex], points[endIndex]);
+        const auto lineDiff = Subspace(points[startIndex], points[endIndex]);
 
         if (lineDiff.isNull())
         {
             return findMostDistantPoint(points, startIndex, endIndex);
         }
 
+        const auto startPoint = points[startIndex];
         double maxDistanceSquared = 0.0;
         std::size_t maxDistanceIndex = startIndex;
 
         for (std::size_t i = startIndex + 1; i != endIndex; ++i)
         {
-            auto v = Vector<N>(points[startIndex], points[i]);
+            auto v = Vector<N>(startPoint, points[i]);
             double distanceSquared = lineDiff.distance2(v);
 
             if (distanceSquared > maxDistanceSquared)
@@ -175,9 +177,9 @@ namespace rdp
             }
         }
 
-        // Constructor is faster than initialization
         return std::make_pair(maxDistanceSquared, maxDistanceIndex);
     }
+
 
     template <std::size_t N>
     void RamerDouglasPeucker(const std::vector<Point<N>>& points, std::size_t startIndex,

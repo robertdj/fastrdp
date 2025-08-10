@@ -84,6 +84,13 @@ The figure is produced with the script in the `performance` folder.
 ![](performance/performance.png)
 
 
+## C++ performance
+
+```bash
+clang++ -std=c++20 -Ofast measure_performance.cpp -o measure_performance
+```
+
+
 # Compilation
 
 To specify package metadata *fastrdp* is using the contemporary `pyproject.toml`.
