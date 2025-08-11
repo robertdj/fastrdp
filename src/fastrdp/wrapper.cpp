@@ -111,11 +111,11 @@ std::vector<size_t> rdp_index_array(py::array_t<double> array, double epsilon)
     indices_to_keep.reserve(n_points);
     indices_to_keep.push_back(0);
 
-    if (ncols == 2) {
+    if (n_cols == 2) {
         auto points = parse_points<2>(array);
         rdp::ramer_douglas_peucker(points, 0, n_points - 1, epsilon * epsilon, indices_to_keep);
     }
-    else if (ncols == 3) {
+    else if (n_cols == 3) {
         auto points = parse_points<3>(array);
         rdp::ramer_douglas_peucker(points, 0, n_points - 1, epsilon * epsilon, indices_to_keep);
     }
