@@ -97,13 +97,13 @@ namespace rdp
             direction = basis.normalized2();
         }
 
-        bool isNull() const {
+        bool is_null() const {
             return basis.abs2() == 0;
         }
 
         Vector<N> project(const Vector<N>& w) const {
-            double dotProduct = w.dot(direction);
-            return basis.scale(dotProduct);
+            double dot_product = w.dot(direction);
+            return basis.scale(dot_product);
         }
 
         double distance2(const Vector<N>& w) const {
@@ -112,103 +112,103 @@ namespace rdp
         }
     };
 
-    // Find the point furthest away from reference(points[startIndex] == points[endIndex])
+    // Find the point furthest away from reference (points[start_index] == points[end_index])
     template <std::size_t N>
-    std::pair<double, std::size_t> findMostDistantPoint(const std::vector<Point<N>>& points,
-        std::size_t startIndex, std::size_t endIndex)
+    std::pair<double, std::size_t> find_most_distant_point(const std::vector<Point<N>>& points,
+        std::size_t start_index, std::size_t end_index)
     {
-        assert(startIndex < endIndex && "Start index must be smaller than end index");
-        assert(endIndex < points.size() && "End index is larger than the number of points");
+        assert(start_index < end_index && "Start index must be smaller than end index");
+        assert(end_index < points.size() && "End index is larger than the number of points");
         assert(points.size() >= 2 && "At least two points needed");
 
-        assert(points[startIndex] == points[endIndex] && "Start and end point must be equal");
+        assert(points[start_index] == points[end_index] && "Start and end point must be equal");
 
-        const auto startPoint = points[startIndex];
-        double maxDistanceSquared = 0.0;
-        std::size_t maxDistanceIndex = startIndex;
+        const auto start_point = points[start_index];
+        double max_dist2 = 0.0;
+        std::size_t max_dist_index = start_index;
 
-        for (std::size_t i = startIndex + 1; i != endIndex; ++i)
+        for (std::size_t i = start_index + 1; i != end_index; ++i)
         {
-            auto v = Vector<N>(startPoint, points[i]);
-            double distanceSquared = v.abs2();
+            auto v = Vector<N>(start_point, points[i]);
+            double dist2 = v.abs2();
 
-            if (distanceSquared > maxDistanceSquared)
+            if (dist2 > max_dist2)
             {
-                maxDistanceIndex = i;
-                maxDistanceSquared = distanceSquared;
+                max_dist_index = i;
+                max_dist2 = dist2;
             }
         }
 
-        return std::make_pair(maxDistanceSquared, maxDistanceIndex);
+        return std::make_pair(max_dist2, max_dist_index);
     }
 
     // Find the point with the maximum distance from line between start and end.
     // Rearranging this formula to avoid recomputing constants:
     // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
     template <std::size_t N>
-    std::pair<double, std::size_t> findMostDistantPointFromLine(const std::vector<Point<N>>& points,
-        std::size_t startIndex,
-        std::size_t endIndex)
+    std::pair<double, std::size_t> find_most_distant_point_from_line(const std::vector<Point<N>>& points,
+        std::size_t start_index,
+        std::size_t end_index)
     {
-        assert(startIndex < endIndex && "Start index must be smaller than end index");
-        assert(endIndex < points.size() && "End index is larger than the number of points");
+        assert(start_index < end_index && "Start index must be smaller than end index");
+        assert(end_index < points.size() && "End index is larger than the number of points");
         assert(points.size() >= 2 && "At least two points needed");
 
-        const auto lineDiff = Subspace(points[startIndex], points[endIndex]);
+        const auto lineDiff = Subspace(points[start_index], points[end_index]);
 
-        if (lineDiff.isNull())
+        if (lineDiff.is_null())
         {
-            return findMostDistantPoint(points, startIndex, endIndex);
+            return find_most_distant_point(points, start_index, end_index);
         }
 
-        const auto startPoint = points[startIndex];
-        double maxDistanceSquared = 0.0;
-        std::size_t maxDistanceIndex = startIndex;
+        const auto start_point = points[start_index];
+        double max_dist2 = 0.0;
+        std::size_t max_dist_index = start_index;
 
-        for (std::size_t i = startIndex + 1; i != endIndex; ++i)
+        for (std::size_t i = start_index + 1; i != end_index; ++i)
         {
-            auto v = Vector<N>(startPoint, points[i]);
-            double distanceSquared = lineDiff.distance2(v);
+            auto v = Vector<N>(start_point, points[i]);
+            double dist2 = lineDiff.distance2(v);
 
-            if (distanceSquared > maxDistanceSquared)
+            if (dist2 > max_dist2)
             {
-                maxDistanceIndex = i;
-                maxDistanceSquared = distanceSquared;
+                max_dist_index = i;
+                max_dist2 = dist2;
             }
         }
 
-        return std::make_pair(maxDistanceSquared, maxDistanceIndex);
+        return std::make_pair(max_dist2, max_dist_index);
     }
 
 
     template <std::size_t N>
-    void RamerDouglasPeucker(const std::vector<Point<N>>& points, std::size_t startIndex,
-        std::size_t endIndex, double epsilonSquared,
-        std::vector<std::size_t>& indicesToKeep)
+    void ramer_douglas_peucker(const std::vector<Point<N>>& points, std::size_t start_index,
+        std::size_t end_index, double epsilon_squared,
+        std::vector<std::size_t>& indices_to_keep)
     {
-        assert(startIndex < endIndex && "Start index must be smaller than end index");
-        assert(endIndex < points.size() && "End index is larger than the number of points");
+        assert(start_index < end_index && "Start index must be smaller than end index");
+        assert(end_index < points.size() && "End index is larger than the number of points");
         // The inequalities 0 <= startIndex < endIndex < points.size() imply that points.size() >= 2
         assert(points.size() >= 2 && "At least two points needed");
 
-        assert(epsilonSquared >= 0 && "epsilonSquared must be non-negative");
+        assert(epsilon_squared >= 0 && "epsilon_squared must be non-negative");
 
-        assert(indicesToKeep.size() >= 1 && "indicesToKeep should be non-empty");
-        assert(indicesToKeep[0] == 0 && "indicesToKeep should be initialized with a 0");
+        assert(indices_to_keep.size() >= 1 && "indices_to_keep should be non-empty");
+        assert(indices_to_keep[0] == 0 && "indices_to_keep should be initialized with a 0");
 
-        auto [maxDistanceSquared, maxDistanceIndex] =
-            findMostDistantPointFromLine(points, startIndex, endIndex);
+        auto [max_dist2, max_dist_index] =
+            find_most_distant_point_from_line(points, start_index, end_index);
 
-        if (maxDistanceSquared > epsilonSquared)
+        if (max_dist2 > epsilon_squared)
         {
-            RamerDouglasPeucker(points, startIndex, maxDistanceIndex, epsilonSquared, indicesToKeep);
-            RamerDouglasPeucker(points, maxDistanceIndex, endIndex, epsilonSquared, indicesToKeep);
+            ramer_douglas_peucker(points, start_index, max_dist_index, epsilon_squared, indices_to_keep);
+            ramer_douglas_peucker(points, max_dist_index, end_index, epsilon_squared, indices_to_keep);
         }
         else
         {
             // startIndex is included from the previous run because we execute sequentially with the
             // lower parts of the list first
-            indicesToKeep.push_back(endIndex);
+            indices_to_keep.push_back(end_index);
         }
     }
 } // end namespace rdp
