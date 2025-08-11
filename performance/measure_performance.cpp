@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
     indicesToKeep.push_back(0);
 
     auto time_start = std::chrono::steady_clock::now();
-    rdp::RamerDouglasPeucker(points, 0, n - 1, epsilon * epsilon, indicesToKeep);
+    rdp::ramer_douglas_peucker(points, 0, n - 1, epsilon * epsilon, indicesToKeep);
     auto time_end = std::chrono::steady_clock::now();
     std::chrono::duration<double> duration = time_end - time_start;
     printf("duration RDP: %g s\n", duration.count());

@@ -16,13 +16,13 @@ std::vector<size_t> rdp_index(py::array_t<double> array1, py::array_t<double> ar
     if (buf1.ndim != 1 || buf2.ndim != 1)
         throw std::domain_error("Inputs should be vectors");
 
-    auto nPoints = buf1.size;
-    if (nPoints != buf2.size)
+    auto n_points = buf1.size;
+    if (n_points != buf2.size)
         throw std::length_error("Inputs have different lengths");
 
-    if (nPoints <= 2)
+    if (n_points <= 2)
     {
-        std::vector<size_t> trivial_indices(nPoints);
+        std::vector<size_t> trivial_indices(n_points);
         std::iota(trivial_indices.begin(), trivial_indices.end(), 0);
         return trivial_indices;
     }
@@ -32,24 +32,24 @@ std::vector<size_t> rdp_index(py::array_t<double> array1, py::array_t<double> ar
 
     // Prepare input for RDP function
     std::vector<rdp::Point<2>> points;
-    points.reserve(nPoints);
-    for (auto i = 0; i < nPoints; i++)
+    points.reserve(n_points);
+    for (auto i = 0; i < n_points; i++)
         points.push_back({ vec1[i], vec2[i] });
 
-    std::vector<size_t> indicesToKeep;
-    indicesToKeep.reserve(nPoints);
-    indicesToKeep.push_back(0);
+    std::vector<size_t> indices_to_keep;
+    indices_to_keep.reserve(n_points);
+    indices_to_keep.push_back(0);
 
-    rdp::RamerDouglasPeucker(points, 0, nPoints - 1, epsilon * epsilon, indicesToKeep);
+    rdp::ramer_douglas_peucker(points, 0, n_points - 1, epsilon * epsilon, indices_to_keep);
 
-    return indicesToKeep;
+    return indices_to_keep;
 }
 
 
 py::array_t<size_t> rdp_index_wrapper(py::array_t<double> array1, py::array_t<double> array2, double epsilon)
 {
-    std::vector<size_t> indicesToKeep = rdp_index(array1, array2, epsilon);
-    return py::array_t<size_t>(indicesToKeep.size(), indicesToKeep.data());
+    std::vector<size_t> indices_to_keep = rdp_index(array1, array2, epsilon);
+    return py::array_t<size_t>(indices_to_keep.size(), indices_to_keep.data());
 }
 
 
@@ -60,19 +60,19 @@ std::vector<rdp::Point<N>> parse_points(const py::array_t<double>& points) {
     if (buf.ndim != 2)
         throw std::domain_error("Input must be a 2D array");
 
-    size_t nrows = buf.shape[0];
-    size_t ncols = buf.shape[1];
+    size_t n_rows = buf.shape[0];
+    size_t n_cols = buf.shape[1];
 
-    if (ncols != N)
+    if (n_cols != N)
         throw std::domain_error("Expected each row to have " + std::to_string(N) + " columns");
 
     auto* data = static_cast<double*>(buf.ptr);
 
     std::vector<rdp::Point<N>> result;
-    result.reserve(nrows);
+    result.reserve(n_rows);
     std::array<double, N> row{};
 
-    for (size_t i = 0; i < nrows; ++i) {
+    for (size_t i = 0; i < n_rows; ++i) {
         for (size_t j = 0; j < N; ++j) {
             row[j] = data[i * N + j];
         }
@@ -93,44 +93,44 @@ std::vector<size_t> rdp_index_array(py::array_t<double> array, double epsilon)
     if (buf.ndim != 2)
         throw std::domain_error("Input must be a 2D array");
 
-    const size_t ncols = buf.shape[1];
+    const size_t n_cols = buf.shape[1];
 
-    if (ncols != 2 && ncols != 3)
+    if (n_cols != 2 && n_cols != 3)
         throw std::domain_error("Input must have 2 or 3 columns");
 
-    const size_t nPoints = buf.shape[0];
+    const size_t n_points = buf.shape[0];
 
-    if (nPoints <= 2)
+    if (n_points <= 2)
     {
-        std::vector<size_t> trivial_indices(nPoints);
+        std::vector<size_t> trivial_indices(n_points);
         std::iota(trivial_indices.begin(), trivial_indices.end(), 0);
         return trivial_indices;
     }
 
-    std::vector<size_t> indicesToKeep;
-    indicesToKeep.reserve(nPoints);
-    indicesToKeep.push_back(0);
+    std::vector<size_t> indices_to_keep;
+    indices_to_keep.reserve(n_points);
+    indices_to_keep.push_back(0);
 
     if (ncols == 2) {
         auto points = parse_points<2>(array);
-        rdp::RamerDouglasPeucker(points, 0, nPoints - 1, epsilon * epsilon, indicesToKeep);
+        rdp::ramer_douglas_peucker(points, 0, n_points - 1, epsilon * epsilon, indices_to_keep);
     }
     else if (ncols == 3) {
         auto points = parse_points<3>(array);
-        rdp::RamerDouglasPeucker(points, 0, nPoints - 1, epsilon * epsilon, indicesToKeep);
+        rdp::ramer_douglas_peucker(points, 0, n_points - 1, epsilon * epsilon, indices_to_keep);
     }
     else {
         throw std::domain_error("Points must have 2 or 3 columns");
     }
 
-    return indicesToKeep;
+    return indices_to_keep;
 }
 
 
 py::array_t<size_t> rdp_index_wrapper_array(py::array_t<double> array, double epsilon)
 {
-    std::vector<size_t> indicesToKeep = rdp_index_array(array, epsilon);
-    return py::array_t<size_t>(indicesToKeep.size(), indicesToKeep.data());
+    std::vector<size_t> indices_to_keep = rdp_index_array(array, epsilon);
+    return py::array_t<size_t>(indices_to_keep.size(), indices_to_keep.data());
 }
 
 
