@@ -146,29 +146,67 @@ namespace rdp
     // Rearranging this formula to avoid recomputing constants:
     // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
     template <std::size_t N>
-    std::pair<double, std::size_t> find_most_distant_point_from_line(const std::vector<Point<N>>& points,
-        std::size_t start_index,
-        std::size_t end_index)
+    std::pair<double, std::size_t> find_most_distant_point_from_line(const std::vector<Point<N>>& points, std::size_t start_index, std::size_t end_index)
+        requires (N == 2)
     {
         assert(start_index < end_index && "Start index must be smaller than end index");
         assert(end_index < points.size() && "End index is larger than the number of points");
         assert(points.size() >= 2 && "At least two points needed");
 
-        const auto lineDiff = Subspace(points[start_index], points[end_index]);
+        const auto line_diff = Vector(points[start_index], points[end_index]);
+        const double line_length_squared = line_diff.abs2();
 
-        if (lineDiff.is_null())
+        if (line_length_squared == 0.0)
         {
             return find_most_distant_point(points, start_index, end_index);
         }
 
+        double offset = points[start_index].coords[1] * line_diff.coords[0] - points[start_index].coords[0] * line_diff.coords[1];
+
+        double max_dist2 = 0.0;
+        std::size_t max_dist_index = start_index;
+
+        for (std::size_t i = start_index + 1; i != end_index; ++i)
+        {
+            double dist = offset - points[i].coords[1] * line_diff.coords[0] + points[i].coords[0] * line_diff.coords[1];
+            double dist2 = dist * dist;
+
+            if (dist2 > max_dist2)
+            {
+                max_dist_index = i;
+                max_dist2 = dist2;
+            }
+        }
+
+        max_dist2 /= line_length_squared;
+
+        return std::make_pair(max_dist2, max_dist_index);
+    }
+
+
+    template <std::size_t N>
+    std::pair<double, std::size_t> find_most_distant_point_from_line(const std::vector<Point<N>>& points, std::size_t start_index, std::size_t end_index)
+        requires (N > 2)
+    {
+        assert(start_index < end_index && "Start index must be smaller than end index");
+        assert(end_index < points.size() && "End index is larger than the number of points");
+        assert(points.size() >= 2 && "At least two points needed");
+
         const auto start_point = points[start_index];
+        const auto reference_space = Subspace(start_point, points[end_index]);
+
+        if (reference_space.is_null())
+        {
+            return find_most_distant_point(points, start_index, end_index);
+        }
+
         double max_dist2 = 0.0;
         std::size_t max_dist_index = start_index;
 
         for (std::size_t i = start_index + 1; i != end_index; ++i)
         {
             auto v = Vector<N>(start_point, points[i]);
-            double dist2 = lineDiff.distance2(v);
+            double dist2 = reference_space.distance2(v);
 
             if (dist2 > max_dist2)
             {
