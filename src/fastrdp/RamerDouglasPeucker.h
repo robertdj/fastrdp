@@ -136,7 +136,7 @@ namespace rdp
         // Note: This is without scaling by the length of basis.
         // This uses about half of the floating point ops and saves two temporary Vector allocations
         // compared to the general formula. On My Machine the general distance2 is about 50% slower
-        // N = 2
+        // for N = 2
         double distance2(const Point<N>& p) const
             requires (N == 2)
         {
