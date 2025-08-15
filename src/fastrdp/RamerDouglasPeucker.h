@@ -1,4 +1,5 @@
 #include <cassert>
+#include <variant>
 #include <tuple>
 #include <vector>
 #include <array>
@@ -9,6 +10,7 @@
 namespace rdp
 {
     template <std::size_t N>
+        requires (N > 1)
     struct Point {
         std::array<double, N> coords{};
 
@@ -91,20 +93,26 @@ namespace rdp
     struct Subspace {
         Point<N> point;
         Vector<N> basis;
-        Vector<N> direction;
+        // Vector<N> direction;
+        std::conditional_t<(N > 2), Vector<N>, std::monostate> direction;
 
         Subspace(const Point<N>& p1, const Point<N>& p2)
         {
             point = p1;
             basis = Vector<N>(p1, p2);
-            direction = basis.normalized2();
+            // direction = basis.normalized2();
+            if constexpr (N > 2) {
+                direction = basis.normalized2();
+            }
         }
 
         bool is_null() const {
             return basis.abs2() == 0;
         }
 
-        Vector<N> project(const Vector<N>& w) const {
+        Vector<N> project(const Vector<N>& w) const
+            requires (N > 2)
+        {
             double dot_product = w.dot(direction);
             return basis.scale(dot_product);
         }
@@ -116,36 +124,20 @@ namespace rdp
             auto projected = project(w);
             return (w - projected).abs2();
         }
-    };
-
-
-    template <>
-    struct Subspace<2> {
-        Point<2> point;
-        Vector<2> basis;
-        double offset;
-
-        Subspace(const Point<2>& p1, const Point<2>& p2)
-        {
-            point = p1;
-            basis = Vector<2>(p1, p2);
-
-            // offset = p2.coords[0] * p1.coords[1] - p2.coords[1] * p1.coords[0];
-            offset = p1.coords[0] * basis.coords[1] - p1.coords[1] * basis.coords[0];
-        }
-
-        bool is_null() const {
-            return basis.abs2() == 0;
-        }
 
         // Faster formula in 2D:
         // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
-        double distance2(const Point<2>& p) const
+        // This is without scaling by the length of basis
+        double distance2(const Point<N>& p) const
+            requires (N == 2)
         {
-            // double dist = basis.coords[1] * p.coords[0] - basis.coords[0] * p.coords[1] + offset;
             double dist = basis.coords[0] * (point.coords[1] - p.coords[1]) - basis.coords[1] * (point.coords[0] - p.coords[0]);
             double dist2 = dist * dist;
             return dist2;
+        }
+
+        double abs2() const {
+            return basis.abs2();
         }
     };
 
@@ -211,7 +203,7 @@ namespace rdp
         }
 
         if constexpr (N == 2) {
-            const double line_length_squared = reference_space.basis.abs2();
+            const double line_length_squared = reference_space.abs2();
             max_dist2 /= line_length_squared;
         }
 
