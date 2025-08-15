@@ -63,15 +63,15 @@ plt.show()
 # Performance
 
 Here we compare the performance of *fastrdp* with that of a pure Python
-implementation. The example above is executed with *fastrdp* in about a
-millisecond on my machine
+implementation. The example above is executed with *fastrdp* in less
+than 0.1 millisecond.
 
 ``` python
 from timeit import timeit
 timeit(lambda: fastrdp.rdp(x, y, 0.1), number=10_000)
 ```
 
-    1.0484414880047552
+    0.6885888330289163
 
 The pure Python implementation in the [*rdp*
 package](https://pypi.org/project/rdp) takes about the same time to
@@ -83,15 +83,28 @@ z = np.column_stack((x, y))
 timeit(lambda: rdp.rdp(z, epsilon=0.1), number=1)
 ```
 
-    0.793960296025034
+    0.7545700910268351
 
 To illustrate how *fastrdp* scales consider the following graph that
 shows execution time for an increasing number of point for both random
 and structured data. “Structured” means that the output of `rdp` is
-**much** smaller than the input. The figure is produced with the script
-in the `performance` folder.
+**much** smaller than the input – the kind of data that the RDP
+algorithm is well suited for. The figure is produced with the script
+`measure_performance.py` in the `performance` folder.
 
 ![](performance/performance.png)
+
+## C++ performance
+
+In the `performance` folder it is possible to benchmark the C++ code
+without the Python overhead. Compile the program (here with clang)
+
+``` bash
+clang++ -std=c++20 -Ofast measure_performance.cpp -o measure_performance.out
+```
+
+Run the program with `./measure_performance.out`. By default, it
+measures the execution time of 10 million random points in 2D.
 
 # Compilation
 
