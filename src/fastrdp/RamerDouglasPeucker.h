@@ -27,6 +27,10 @@ namespace rdp
         bool operator==(const Point& other) const {
             return coords == other.coords;
         }
+
+        const double& operator[](std::size_t i) const noexcept {
+            return coords[i];
+        }
     };
 
     template <std::size_t N>
@@ -86,6 +90,10 @@ namespace rdp
             }
             return result;
         }
+
+        const double& operator[](std::size_t i) const noexcept {
+            return coords[i];
+        }
     };
 
 
@@ -93,14 +101,12 @@ namespace rdp
     struct Subspace {
         Point<N> point;
         Vector<N> basis;
-        // Vector<N> direction;
         std::conditional_t<(N > 2), Vector<N>, std::monostate> direction;
 
         Subspace(const Point<N>& p1, const Point<N>& p2)
         {
             point = p1;
             basis = Vector<N>(p1, p2);
-            // direction = basis.normalized2();
             if constexpr (N > 2) {
                 direction = basis.normalized2();
             }
@@ -131,7 +137,7 @@ namespace rdp
         double distance2(const Point<N>& p) const
             requires (N == 2)
         {
-            double dist = basis.coords[0] * (point.coords[1] - p.coords[1]) - basis.coords[1] * (point.coords[0] - p.coords[0]);
+            double dist = basis[0] * (point[1] - p[1]) - basis[1] * (point[0] - p[0]);
             double dist2 = dist * dist;
             return dist2;
         }
