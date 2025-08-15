@@ -133,7 +133,10 @@ namespace rdp
 
         // Faster formula in 2D:
         // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
-        // This is without scaling by the length of basis
+        // Note: This is without scaling by the length of basis.
+        // This uses about half of the floating point ops and saves two temporary Vector allocations
+        // compared to the general formula. On My Machine the general distance2 is about 50% slower
+        // N = 2
         double distance2(const Point<N>& p) const
             requires (N == 2)
         {
