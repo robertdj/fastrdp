@@ -137,7 +137,7 @@ namespace rdp
         // This uses about half of the floating point ops and saves two temporary Vector allocations
         // compared to the general formula. On My Machine the general distance2 is about 50% slower
         // for N = 2
-        double distance2(const Point<N>& p) const
+        inline double distance2(const Point<N>& p) const
             requires (N == 2)
         {
             double dist = basis[0] * (point[1] - p[1]) - basis[1] * (point[0] - p[0]);
