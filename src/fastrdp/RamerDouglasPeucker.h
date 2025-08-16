@@ -12,7 +12,7 @@ namespace rdp
     template <std::size_t N>
         requires (N > 1)
     struct Point {
-        std::array<double, N> coords{};
+        std::array<double, N> coords;
 
         Point() = default;
 
@@ -35,7 +35,7 @@ namespace rdp
 
     template <std::size_t N>
     struct Vector {
-        std::array<double, N> coords{};
+        std::array<double, N> coords;
 
         Vector() = default;
 
