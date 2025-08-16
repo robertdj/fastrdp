@@ -193,26 +193,23 @@ namespace rdp
             return find_most_distant_point(points, start_index, end_index);
         }
 
-        double max_dist2_a = 0.0;
-        std::size_t max_dist_index_a = start_index;
-
-        double max_dist2_b = 0.0;
-        std::size_t max_dist_index_b = start_index;
+        double max_dist2_a = 0.0, max_dist2_b = 0.0;
+        std::size_t max_dist_index_a = start_index, max_dist_index_b = start_index;
 
         std::size_t i = start_index + 1;
         for (; i + 1 < end_index; i += 2)
         {
-            double dist2a = reference_space.distance2(points[i]);
-            if (dist2a > max_dist2_a)
+            double dist2_a = reference_space.distance2(points[i]);
+            if (dist2_a > max_dist2_a)
             {
-                max_dist2_a = dist2a;
+                max_dist2_a = dist2_a;
                 max_dist_index_a = i;
             }
 
-            double dist2b = reference_space.distance2(points[i + 1]);
-            if (dist2b > max_dist2_b)
+            double dist2_b = reference_space.distance2(points[i + 1]);
+            if (dist2_b > max_dist2_b)
             {
-                max_dist2_b = dist2b;
+                max_dist2_b = dist2_b;
                 max_dist_index_b = i + 1;
             }
         }
