@@ -197,18 +197,51 @@ namespace rdp
             return find_most_distant_point(points, start_index, end_index);
         }
 
-        double max_dist2 = 0.0;
-        std::size_t max_dist_index = start_index;
+        double max_dist2_a = 0.0;
+        std::size_t max_dist_index_a = start_index;
 
-        for (std::size_t i = start_index + 1; i != end_index; ++i)
+        double max_dist2_b = 0.0;
+        std::size_t max_dist_index_b = start_index;
+
+        std::size_t i = start_index + 1;
+        for (; i + 1 < end_index; i += 2)
+        {
+            double dist2a = reference_space.distance2(points[i]);
+            if (dist2a > max_dist2_a)
+            {
+                max_dist2_a = dist2a;
+                max_dist_index_a = i;
+            }
+
+            double dist2b = reference_space.distance2(points[i + 1]);
+            if (dist2b > max_dist2_b)
+            {
+                max_dist2_b = dist2b;
+                max_dist_index_b = i + 1;
+            }
+        }
+
+        if (i < end_index)
         {
             double dist2 = reference_space.distance2(points[i]);
-
-            if (dist2 > max_dist2)
+            if (dist2 > max_dist2_a)
             {
-                max_dist_index = i;
-                max_dist2 = dist2;
+                max_dist2_a = dist2;
+                max_dist_index_a = i;
             }
+        }
+
+        double max_dist2;
+        std::size_t max_dist_index;
+        if (max_dist2_a >= max_dist2_b)
+        {
+            max_dist2 = max_dist2_a;
+            max_dist_index = max_dist_index_a;
+        }
+        else
+        {
+            max_dist2 = max_dist2_b;
+            max_dist_index = max_dist_index_b;
         }
 
         if constexpr (N == 2) {
