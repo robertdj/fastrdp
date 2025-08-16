@@ -18,11 +18,7 @@ namespace rdp
 
         Point(const std::array<double, N>& coords) : coords(coords) {}
 
-        Point(double x, double y) {
-            static_assert(N == 2, "This constructor is only valid for N=2");
-            coords[0] = x;
-            coords[1] = y;
-        }
+        Point(double x, double y) requires (N == 2) : coords{ x, y } {}
 
         bool operator==(const Point& other) const {
             return coords == other.coords;
