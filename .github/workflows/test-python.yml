@@ -15,26 +15,23 @@ jobs:
         python-version: ['3.10', '3.11', '3.12', '3.13']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Create virtual environment
-        env:
-          BIN: ${{ matrix.os == 'windows-2022' && 'Scripts' || 'bin' }}
-        run: |
-          python -m venv .venv
-          echo "$GITHUB_WORKSPACE/.venv/$BIN" >> $GITHUB_PATH
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.8.11"
 
       - name: Install RDP & dependencies
-        run: |
-          pip install '.[dev]'
+        run: uv sync --group dev
 
       - name: Run tests
-        run: pytest
+        run: uv run pytest
 
 
   readme:
@@ -45,7 +42,7 @@ jobs:
         python-version: ['3.11']
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Set up Quarto
       uses: quarto-dev/quarto-actions/setup@v2
@@ -69,3 +66,10 @@ jobs:
       uses: quarto-dev/quarto-actions/render@v2
       with:
         path: README.qmd
+
+
+  ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: chartboost/ruff-action@v1
