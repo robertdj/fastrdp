@@ -75,4 +75,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: chartboost/ruff-action@v3
+      - uses: astral-sh/ruff-action@v3
