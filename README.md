@@ -103,8 +103,7 @@ without the Python overhead. Compile the program (here with clang)
 clang++ -std=c++20 -Ofast measure_performance.cpp -o measure_performance.out
 ```
 
-Run the program with `./measure_performance.out`. By default, it
-measures the execution time of 10 million random points in 2D.
+Run the program with `./measure_performance.out` and optinoally the number of points. By default, it measures the execution time of 10 million random points in 2D.
 
 # Compilation
 

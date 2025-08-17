@@ -12,17 +12,13 @@ namespace rdp
     template <std::size_t N>
         requires (N > 1)
     struct Point {
-        std::array<double, N> coords{};
+        std::array<double, N> coords;
 
         Point() = default;
 
         Point(const std::array<double, N>& coords) : coords(coords) {}
 
-        Point(double x, double y) {
-            static_assert(N == 2, "This constructor is only valid for N=2");
-            coords[0] = x;
-            coords[1] = y;
-        }
+        Point(double x, double y) requires (N == 2) : coords{ x, y } {}
 
         bool operator==(const Point& other) const {
             return coords == other.coords;
@@ -35,7 +31,7 @@ namespace rdp
 
     template <std::size_t N>
     struct Vector {
-        std::array<double, N> coords{};
+        std::array<double, N> coords;
 
         Vector() = default;
 
@@ -137,7 +133,7 @@ namespace rdp
         // This uses about half of the floating point ops and saves two temporary Vector allocations
         // compared to the general formula. On My Machine the general distance2 is about 50% slower
         // for N = 2
-        double distance2(const Point<N>& p) const
+        inline double distance2(const Point<N>& p) const
             requires (N == 2)
         {
             double dist = basis[0] * (point[1] - p[1]) - basis[1] * (point[0] - p[0]);
@@ -197,18 +193,48 @@ namespace rdp
             return find_most_distant_point(points, start_index, end_index);
         }
 
-        double max_dist2 = 0.0;
-        std::size_t max_dist_index = start_index;
+        double max_dist2_a = 0.0, max_dist2_b = 0.0;
+        std::size_t max_dist_index_a = start_index, max_dist_index_b = start_index;
 
-        for (std::size_t i = start_index + 1; i != end_index; ++i)
+        std::size_t i = start_index + 1;
+        for (; i + 1 < end_index; i += 2)
+        {
+            double dist2_a = reference_space.distance2(points[i]);
+            if (dist2_a > max_dist2_a)
+            {
+                max_dist2_a = dist2_a;
+                max_dist_index_a = i;
+            }
+
+            double dist2_b = reference_space.distance2(points[i + 1]);
+            if (dist2_b > max_dist2_b)
+            {
+                max_dist2_b = dist2_b;
+                max_dist_index_b = i + 1;
+            }
+        }
+
+        if (i < end_index)
         {
             double dist2 = reference_space.distance2(points[i]);
-
-            if (dist2 > max_dist2)
+            if (dist2 > max_dist2_a)
             {
-                max_dist_index = i;
-                max_dist2 = dist2;
+                max_dist2_a = dist2;
+                max_dist_index_a = i;
             }
+        }
+
+        double max_dist2;
+        std::size_t max_dist_index;
+        if (max_dist2_a >= max_dist2_b)
+        {
+            max_dist2 = max_dist2_a;
+            max_dist_index = max_dist_index_a;
+        }
+        else
+        {
+            max_dist2 = max_dist2_b;
+            max_dist_index = max_dist_index_b;
         }
 
         if constexpr (N == 2) {
