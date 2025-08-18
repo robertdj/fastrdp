@@ -28,30 +28,32 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ inputs.sha }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
-      - name: Install dependencies
-        run: |
-          pip install build twine wheel
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.8.11"
 
       - name: Create source distribution
-        run: |
-          python -m build --sdist
+        run: uv build --sdist
 
       - name: Check README rendering for PyPI
-        run: twine check dist/*
+        run: |
+          uv add twine
+          uv run twine check dist/*
 
       - name: Test sdist
         run: |
-          pip install --force-reinstall --verbose dist/*.tar.gz
-          python -c "from fastrdp import rdp"
+          uv add --verbose dist/*.tar.gz
+          uv run --with fastrdp --no-project -- python -c "from fastrdp import rdp"
 
       - name: Upload sdist
         uses: actions/upload-artifact@v4
@@ -83,7 +85,7 @@ jobs:
       MACOSX_DEPLOYMENT_TARGET: "11.00"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ inputs.sha }}
 
@@ -119,7 +121,7 @@ jobs:
 
     steps:
       - name: Download sdist
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: sdist
           path: dist
