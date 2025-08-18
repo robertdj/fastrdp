@@ -71,7 +71,7 @@ from timeit import timeit
 timeit(lambda: fastrdp.rdp(x, y, 0.1), number=10_000)
 ```
 
-    0.6885888330289163
+    0.6280886640306562
 
 The pure Python implementation in the [*rdp*
 package](https://pypi.org/project/rdp) takes about the same time to
@@ -83,7 +83,7 @@ z = np.column_stack((x, y))
 timeit(lambda: rdp.rdp(z, epsilon=0.1), number=1)
 ```
 
-    0.7545700910268351
+    0.7517868120921776
 
 To illustrate how *fastrdp* scales consider the following graph that
 shows execution time for an increasing number of point for both random
@@ -103,7 +103,9 @@ without the Python overhead. Compile the program (here with clang)
 clang++ -std=c++20 -Ofast measure_performance.cpp -o measure_performance.out
 ```
 
-Run the program with `./measure_performance.out` and optionally the number of points. By default, it measures the execution time of 10 million random points in 2D.
+Run the program with `./measure_performance.out` and optionally the
+number of points. By default, it measures the execution time of 10
+million random points in 2D.
 
 # Compilation
 
