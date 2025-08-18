@@ -32,3 +32,7 @@ docs = [
     "matplotlib>=3.9.4",
     "rdp>=0.8",
 ]
+performance = [
+    "plotnine>=0.15.0",
+    "polars[pandas]>=1.32.3",
+]
