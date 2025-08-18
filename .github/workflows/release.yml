@@ -53,7 +53,7 @@ jobs:
       - name: Test sdist
         run: |
           uv add --verbose dist/*.tar.gz
-          uv run --with fastrdp --no-project -- python -c "from fastrdp import rdp"
+          uv run -- python -c "from fastrdp import rdp"
 
       - name: Upload sdist
         uses: actions/upload-artifact@v4
