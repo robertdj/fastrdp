@@ -27,7 +27,7 @@ jobs:
         with:
           version: "0.8.11"
 
-      - name: Install RDP & dependencies
+      - name: Install fastrdp & dependencies
         run: uv sync --group dev
 
       - name: Run tests
