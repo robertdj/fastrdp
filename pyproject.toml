@@ -13,14 +13,20 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
-    "numpy>=2.0.2",
+    "numpy>=2.1.0",
 ]
-
-[project.optional-dependencies]
-dev = ["build", "pytest", "wheel"]
-docs = ["jupyter", "matplotlib", "rdp"]
 
 [project.urls]
 Homepage = "https://github.com/robertdj/fastrdp"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+]
+docs = [
+    "jupyter>=1.1.1",
+    "matplotlib>=3.9.4",
+    "rdp>=0.8",
+]
