@@ -52,7 +52,6 @@ jobs:
 
       - name: Test sdist
         run: |
-          uv init
           uv pip install --verbose dist/*.tar.gz
           uv run --no-project -- python -c "from fastrdp import rdp"
 
