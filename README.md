@@ -71,7 +71,7 @@ from timeit import timeit
 timeit(lambda: fastrdp.rdp(x, y, 0.1), number=10_000)
 ```
 
-    0.6280886640306562
+    0.5618547939229757
 
 The pure Python implementation in the [*rdp*
 package](https://pypi.org/project/rdp) takes about the same time to
@@ -89,10 +89,16 @@ To illustrate how *fastrdp* scales consider the following graph that
 shows execution time for an increasing number of point for both random
 and structured data. “Structured” means that the output of `rdp` is
 **much** smaller than the input – the kind of data that the RDP
-algorithm is well suited for. The figure is produced with the script
-`measure_performance.py` in the `performance` folder.
+algorithm is well suited for.
 
 ![](performance/performance.png)
+
+The figure is produced with the script `measure_performance.py` in the
+`performance` folder. The dependencies needed can be installed with
+
+``` bash
+uv sync --group performance
+```
 
 ## C++ performance
 
@@ -111,22 +117,11 @@ million random points in 2D.
 
 To specify package metadata *fastrdp* is using the contemporary
 `pyproject.toml`. Execute the following commands to build and install
-*fastrdp*
+*fastrdp* using `uv`
 
 ``` bash
-pip install .
+uv sync --group dev
 ```
-
-If you want an editable installation, then add a `-e` to the last
-command. To also install the optional dependencies used for development
-add a little extra:
-
-``` bash
-pip install -e '.[dev]'
-```
-
-The single quotes are needed in zsh, but is perhaps superfluous in other
-shells.
 
 # README
 
@@ -136,6 +131,8 @@ This README is made from the [Quarto](https://quarto.org) document
 ``` {bash}
 quarto render README.qmd --to gfm --output README.md
 ```
+
+The required dependencies can be installed with `uv sync --group docs`.
 
 # Acknowledgements
 
